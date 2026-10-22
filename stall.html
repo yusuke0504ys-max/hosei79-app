@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>第79回自主法政祭 屋台企画 違反報告・累積点数管理システム</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Tone.js for auditory feedback -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+
+  <!-- ななキュン79: 丸ゴシック（未読込時はOS標準ゴシック） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+
+  <!-- ななキュン79: ピンク・黒・白。警告は赤 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {800: '#2a2a2a', 900: '#1a1a1a', 950: '#111111'},
+            gold: {50: '#fff5fc', 100: '#fde8f9', 200: '#fbd3f3', 300: '#fea6ec', 400: '#fea6ec', 500: '#f37fd9', 600: '#111111', 700: '#111111'},
+            crimson: {50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af', 400: '#e84b5e', 500: '#d7263d', 600: '#c51f35', 700: '#a61b2e', 800: '#861627', 900: '#681220', 950: '#390910'}
+          },
+          borderRadius: {DEFAULT: '10px'},
+          fontWeight: {normal: '500', medium: '500', semibold: '800', bold: '800', extrabold: '800', black: '800'},
+          fontFamily: {
+            sans: ['M PLUS Rounded 1c', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'M PLUS Rounded 1c', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .gold-plate-badge {
+      background: #fff;
+      border: 2px solid #111;
+      color: #111;
+    }
+    
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+
+  </style>
+</head>
+<body class="bg-white text-navy-950 min-h-screen flex flex-col antialiased selection:bg-crimson-600 selection:text-white">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-gold-400 text-navy-950 border-b-2 border-navy-950 sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="data:image/png;base64,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" alt="ななキュン79" width="52" height="52" class="w-[52px] h-[52px] object-contain flex-shrink-0">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-black text-navy-950 bg-white border-2 border-navy-950 px-2 py-0.5 rounded-[10px]">
+              屋台 巡回
+            </span>
+            <span class="w-1.5 h-1.5 rounded-[10px] bg-emerald-400"></span>
+            <span id="sync-status-indicator" class="text-[10px] text-navy-950 font-bold hidden sm:inline">端末ローカル保存中</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-black text-navy-950 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1.5">
+            第79回自主法政祭
+            <span class="text-xs sm:text-sm font-bold text-navy-950">屋台 違反報告</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Tab Switcher (巡回報告 / 本部集計) -->
+      <nav class="flex w-full sm:w-auto bg-white p-1 rounded-[10px] border-2 border-navy-950 text-xs font-black" aria-label="表示切替">
+        <button id="tab-btn-report" onclick="switchMainTab('report')" class="flex-1 sm:flex-none justify-center px-3 sm:px-4 py-1.5 rounded-[10px] bg-navy-950 text-gold-300 flex items-center gap-1.5 transition">
+          <i data-lucide="radar" class="w-3.5 h-3.5 text-current"></i>
+          <span>巡回報告</span>
+        </button>
+        <button id="tab-btn-dashboard" onclick="switchMainTab('dashboard')" class="flex-1 sm:flex-none justify-center px-3 sm:px-4 py-1.5 rounded-[10px] text-navy-950 hover:bg-gold-100 flex items-center gap-1.5 transition">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-current"></i>
+          <span>本部集計</span>
+          <span id="badge-total-reports-count" class="ml-0.5 px-1.5 py-0.2 rounded-[10px] text-[10px] bg-white text-navy-950 border-2 border-navy-950">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <p id="outbox-rejections" role="status" class="hidden px-4 py-2 text-xs font-bold text-crimson-700 break-all"></p>
+  <!-- Cloud Sync & Status Banner -->
+  <section class="bg-white border-b-2 border-navy-950 py-1.5 px-4 text-xs text-navy-950 flex items-center justify-between">
+    <div class="max-w-4xl mx-auto w-full flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <i data-lucide="cloud" class="w-3.5 h-3.5 text-navy-950"></i>
+        <span id="outbox-status" role="status" aria-live="polite" class="hidden shrink-0 text-xs font-black text-crimson-300"></span>
+        <span id="cloud-banner-text" class="text-[11px] font-bold">同期 <span class="text-navy-950">端末内保存（オフライン対応）</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-manual-sync" onclick="syncWithCloud(true)" class="text-[10px] bg-white hover:bg-gold-100 border-2 border-navy-950 text-navy-950 hover:text-navy-950 px-2.5 py-0.5 rounded-[10px] flex items-center gap-1 transition">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+          <span>最新にする</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Context Breadcrumb / Live Progress Bar -->
+  <section class="bg-white border-b-2 border-navy-950 py-2.5 px-4" aria-label="選択状態">
+    <div class="max-w-4xl mx-auto flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar font-bold text-slate-600 min-w-0">
+        <span class="flex items-center gap-1 text-navy-950 font-black flex-shrink-0">
+          <i data-lucide="compass" class="w-3.5 h-3.5 text-gold-600"></i> 巡回先
+        </span>
+        <span id="live-crumb-date" class="px-2 py-0.5 rounded-[10px] bg-white text-navy-950 flex-shrink-0">10月31日</span>
+        <span class="text-slate-300 flex-shrink-0">❯</span>
+        <span id="live-crumb-area" class="px-2 py-0.5 rounded-[10px] bg-white text-slate-400 flex-shrink-0">エリア未選択</span>
+        <span class="text-slate-300 flex-shrink-0">❯</span>
+        <span id="live-crumb-stall" class="px-2 py-0.5 rounded-[10px] bg-white text-slate-400 flex-shrink-0 truncate max-w-[140px] sm:max-w-none">屋台未選択</span>
+      </div>
+      <button onclick="resetWorkflow()" class="text-[11px] font-bold text-slate-400 hover:text-crimson-600 flex items-center gap-1 flex-shrink-0 ml-2 transition">
+        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> リセット
+      </button>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: 屋台巡回報告 4ステップ・ウィザード -->
+    <!-- ========================================== -->
+    <div id="view-report-flow" class="space-y-6">
+
+      <!-- STEP 1: 日付を選択 -->
+      <section class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950 transition-all hover:border-navy-950">
+        <div class="flex items-center justify-between mb-3.5">
+          <h2 class="text-base sm:text-lg font-black text-navy-950 flex items-center gap-2">
+            <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm border-2 border-navy-950">1</span>
+            日付を選択
+          </h2>
+          <span class="text-[11px] font-bold text-slate-400">開催日程（全4日間）</span>
+        </div>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="date-buttons-group">
+          <button type="button" onclick="selectDate('10-31', '10月31日')" data-date="10-31" class="btn-date active p-3 rounded-[10px] border-2 border-navy-950 bg-navy-950 text-white font-black text-xs sm:text-sm flex flex-col items-center justify-center gap-0.5 transition-all">
+            <span class="text-[10px] text-gold-400 font-extrabold">1日目</span>
+            <span class="text-sm sm:text-base font-black">10月31日</span>
+            <span class="text-[10px] text-slate-300 font-medium">初日</span>
+          </button>
+          
+          <button type="button" onclick="selectDate('11-01', '11月1日')" data-date="11-01" class="btn-date p-3 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 text-navy-950 font-black text-xs sm:text-sm flex flex-col items-center justify-center gap-0.5 transition-all">
+            <span class="text-[10px] text-slate-400 font-extrabold">2日目</span>
+            <span class="text-sm sm:text-base font-black">11月1日</span>
+            <span class="text-[10px] text-slate-500 font-medium">2日目</span>
+          </button>
+
+          <button type="button" onclick="selectDate('11-02', '11月2日')" data-date="11-02" class="btn-date p-3 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 text-navy-950 font-black text-xs sm:text-sm flex flex-col items-center justify-center gap-0.5 transition-all">
+            <span class="text-[10px] text-slate-400 font-extrabold">3日目</span>
+            <span class="text-sm sm:text-base font-black">11月2日</span>
+            <span class="text-[10px] text-slate-500 font-medium">3日目</span>
+          </button>
+
+          <button type="button" onclick="selectDate('11-03', '11月3日')" data-date="11-03" class="btn-date p-3 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 text-navy-950 font-black text-xs sm:text-sm flex flex-col items-center justify-center gap-0.5 transition-all">
+            <span class="text-[10px] text-slate-400 font-extrabold">4日目</span>
+            <span class="text-sm sm:text-base font-black">11月3日</span>
+            <span class="text-[10px] text-slate-500 font-medium">最終日</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 2: 屋台エリアを選択 -->
+      <section class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950 transition-all hover:border-navy-950">
+        <div class="flex items-center justify-between mb-3.5">
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-navy-950 flex items-center gap-2">
+              <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm border-2 border-navy-950">2</span>
+              屋台設置エリアを選択
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">エリアを選ぶ</p>
+          </div>
+          <span class="text-xs font-bold text-slate-400 bg-white px-2.5 py-1 rounded-[10px]">全4エリア</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="areas-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </section>
+
+      <!-- STEP 3: 地割番号・出店団体を選択 -->
+      <section id="step-card-stall" class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950 transition-all opacity-50 pointer-events-none">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-navy-950 flex items-center gap-2">
+              <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm border-2 border-navy-950">3</span>
+              屋台番号・出店団体を選択
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              各テントの<span class="font-bold text-navy-950 bg-gold-200 px-1.5 py-0.5 rounded-[10px] mx-1">黄色バッジ</span>が地割番号です。該当屋台を選択してください。
+            </p>
+          </div>
+
+          <!-- Quick Search Filter -->
+          <div class="relative w-full sm:w-64">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            <input type="text" id="stall-search-input" oninput="filterStalls()" placeholder="地割番号・団体名・商品名で検索..." class="w-full pl-9 pr-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-xs font-bold text-navy-950 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-navy-900 focus:bg-white transition">
+          </div>
+        </div>
+
+        <!-- Stall List Grid -->
+        <div id="stall-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 min-h-[140px] max-h-[380px] overflow-y-auto pr-1">
+          <div class="col-span-full py-10 text-center text-slate-400 text-xs font-bold flex flex-col items-center justify-center gap-2">
+            <i data-lucide="arrow-up-circle" class="w-6 h-6 text-slate-300"></i>
+            <span>上のエリアを選択すると、配置屋台一覧が表示されます</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 4: 違反項目を選択＆報告確定（点数制・複数選択可能） -->
+      <section id="step-card-violation" class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950 transition-all opacity-50 pointer-events-none">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-navy-950 flex items-center gap-2">
+              <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm">4</span>
+              違反項目を選択・報告（点数制・複数選択可）
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">違反を選んで、名前を書いて登録（複数可）</p>
+          </div>
+          <span class="text-xs font-bold text-navy-900 bg-gold-100 border-2 border-navy-950 px-2.5 py-1 rounded-[10px] flex items-center gap-1">
+            <i data-lucide="check-square" class="w-3.5 h-3.5 text-gold-700"></i> 複数選択OK
+          </span>
+        </div>
+
+        <!-- Point Filter Tabs -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-4 pb-1" id="violation-cat-filter">
+          <button type="button" onclick="filterViolations('all')" class="cat-pill active px-3.5 py-1.5 rounded-[10px] text-xs font-black bg-navy-950 text-gold-300 border-2 border-navy-950 flex-shrink-0 transition">すべて</button>
+          <button type="button" onclick="filterViolations('1点')" class="cat-pill px-3.5 py-1.5 rounded-[10px] text-xs font-bold bg-white text-slate-600 hover:bg-slate-200 flex-shrink-0 transition">【1点】軽度</button>
+          <button type="button" onclick="filterViolations('2点')" class="cat-pill px-3.5 py-1.5 rounded-[10px] text-xs font-bold bg-white text-slate-600 hover:bg-slate-200 flex-shrink-0 transition">【2点】中度</button>
+          <button type="button" onclick="filterViolations('3点')" class="cat-pill px-3.5 py-1.5 rounded-[10px] text-xs font-bold bg-white text-slate-600 hover:bg-slate-200 flex-shrink-0 transition">【3点】重度</button>
+          <button type="button" onclick="filterViolations('その他')" class="cat-pill px-3.5 py-1.5 rounded-[10px] text-xs font-bold bg-white text-slate-600 hover:bg-slate-200 flex-shrink-0 transition">その他</button>
+        </div>
+
+        <!-- Violation Items Grid -->
+        <div id="violation-items-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 max-h-[380px] overflow-y-auto pr-1">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Custom Violation Input Box -->
+        <div id="custom-violation-box" class="hidden mb-5 bg-gold-50/70 border-2 border-navy-950 rounded-[10px] p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-[10px] bg-gold-400 text-navy-950 flex items-center justify-center font-black text-xs">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+            </span>
+            <h4 class="text-xs font-black text-navy-950">その他：現場判断による違反内容の自由入力</h4>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-bold text-navy-950 mb-1">違反項目・事象の概要 <span class="text-crimson-600">*必須</span></label>
+              <input type="text" id="custom-violation-name" placeholder="例: 油煙の直撃、消火器具付近の障害物 など" class="w-full px-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-xs focus:ring-2 focus:ring-navy-900 focus:outline-none font-bold">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-navy-950 mb-1">適用点数</label>
+              <select id="custom-violation-points" class="w-full px-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-xs font-bold text-navy-950 focus:ring-2 focus:ring-navy-900 focus:outline-none">
+                <option value="1">1点 (軽度)</option>
+                <option value="2">2点 (中度)</option>
+                <option value="3" selected>3点 (重度)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-navy-950 mb-1">判断理由・補足</label>
+              <input type="text" id="custom-violation-desc" placeholder="例: 注意を無視" class="w-full px-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-xs focus:ring-2 focus:ring-navy-900 focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct Input Fields: Reporter Name & Situation Memo -->
+        <div class="bg-white border-2 border-navy-950 rounded-[10px] p-4 space-y-3 mb-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-black text-navy-950 mb-1">
+                報告者名（見回りスタッフ・班名） <span class="text-crimson-600 font-black">*必須</span>
+              </label>
+              <input type="text" id="reporter-name" value="屋台巡回A班" placeholder="例: 屋台巡回A班、佐藤" class="w-full px-3.5 py-2.5 bg-white border-2 border-navy-950 rounded-[10px] text-xs font-bold text-navy-950 focus:ring-2 focus:ring-navy-900 focus:border-navy-950 focus:outline-none transition">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-navy-950 mb-1">
+                状況メモ・特記事項（任意）
+              </label>
+              <input type="text" id="report-memo" placeholder="例: 即時是正指示、手袋交換確認済み" class="w-full px-3.5 py-2.5 bg-white border-2 border-navy-950 rounded-[10px] text-xs font-medium text-navy-950 focus:ring-2 focus:ring-navy-900 focus:outline-none transition">
+            </div>
+          </div>
+        </div>
+
+        <!-- Official Operational Notice -->
+        <p class="text-[11px] text-slate-500 bg-white border-2 border-navy-950 rounded-[10px] p-2.5 mb-4 leading-relaxed font-medium">
+          <span id="stall-rule-guidance">判定基準は本部が設定したルールに従います。</span>
+        </p>
+
+        <!-- SUBMIT ACTION PANEL -->
+        <div id="submit-action-panel" class="p-4 bg-navy-950 rounded-[10px] border-2 border-navy-950 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <span id="submit-count-badge" class="w-14 h-14 rounded-[10px] bg-navy-800 text-slate-400 border-2 border-navy-950 flex flex-col items-center justify-center font-black text-sm flex-shrink-0 transition">
+              <span id="submit-points-num" class="text-base text-gold-400">0pt</span>
+              <span id="submit-count-num" class="text-[9px] font-normal leading-none text-slate-300">0件</span>
+            </span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] text-gold-400 font-bold block">選択中の違反項目</span>
+                <button type="button" id="btn-clear-selection" onclick="clearSelectedViolations()" class="hidden text-[10px] text-slate-400 hover:text-white underline font-bold">全解除</button>
+              </div>
+              <h4 id="submit-violation-title" class="text-xs sm:text-sm font-black text-slate-400 truncate">違反を選ぶ（複数可）</h4>
+            </div>
+          </div>
+
+          <button id="btn-submit-report" onclick="submitConfirmedReport()" disabled class="w-full sm:w-auto px-6 py-3 rounded-[10px] bg-slate-700 text-slate-400 font-black text-sm flex items-center justify-center gap-2 cursor-not-allowed transition">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span id="submit-btn-label">登録する</span>
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: 本部集計ダッシュボード (パスワード保護) -->
+    <!-- ========================================== -->
+    <div id="view-dashboard" class="hidden space-y-6">
+
+      <!-- Sliding Period Selector Bar with Password Protection -->
+      <div class="bg-navy-950 p-3 rounded-[10px] border-2 border-navy-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-[10px] bg-gold-400 text-navy-950 flex items-center justify-center font-black">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+          </span>
+          <div>
+            <h3 class="text-xs font-black text-white flex items-center gap-1.5">
+              点数計算スライド期間選択
+              <span class="text-[10px] text-gold-400 font-bold bg-navy-900 px-2 py-0.5 rounded-[10px] border-2 border-navy-950"><span id="stall-rule-thresholds"></span></span>
+            </h3>
+            <p class="text-[10px] text-slate-400"><span id="stall-rule-period"></span></p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto no-scrollbar">
+          <button type="button" onclick="requestPeriodAccess('day1-2')" id="btn-period-day1-2" class="period-btn active px-3 py-1.5 rounded-[10px] text-xs font-black bg-gold-400 text-navy-950 transition flex items-center gap-1 flex-shrink-0">
+            <i data-lucide="lock" class="w-3 h-3 period-lock-icon"></i>
+            <span>1日目 + 2日目</span>
+          </button>
+          <button type="button" onclick="requestPeriodAccess('day2-3')" id="btn-period-day2-3" class="period-btn px-3 py-1.5 rounded-[10px] text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1 flex-shrink-0">
+            <i data-lucide="lock" class="w-3 h-3 period-lock-icon"></i>
+            <span>2日目 + 3日目</span>
+          </button>
+          <button type="button" onclick="requestPeriodAccess('day3-4')" id="btn-period-day3-4" class="period-btn px-3 py-1.5 rounded-[10px] text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1 flex-shrink-0">
+            <i data-lucide="lock" class="w-3 h-3 period-lock-icon"></i>
+            <span>3日目 + 4日目</span>
+          </button>
+          <button type="button" onclick="requestPeriodAccess('all')" id="btn-period-all" class="period-btn px-3 py-1.5 rounded-[10px] text-xs font-bold text-crimson-300 hover:text-gold-200 border-2 border-navy-950 transition flex items-center gap-1 flex-shrink-0">
+            <i data-lucide="lock" class="w-3 h-3 period-lock-icon"></i>
+            <span>全日総計</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Locked Warning Banner (Shown until unlocked) -->
+      <div id="dashboard-locked-banner" class=" bg-navy-950 border-2 border-navy-950 p-5 rounded-[10px] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-[10px] bg-gold-500/20 border-2 border-navy-950 flex items-center justify-center text-gold-400 flex-shrink-0">
+            <i data-lucide="lock" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h4 class="text-sm font-black text-white">点数集計データはパスワードで保護されています</h4>
+            <p class="text-xs text-slate-300 mt-0.5 font-bold">局長・チーフ用パスワードを入力して閲覧してください</p>
+          </div>
+        </div>
+        <button type="button" onclick="requestPeriodAccess(currentPeriod || 'day1-2')" class="px-5 py-2.5 bg-gold-400 text-navy-950 font-black text-xs rounded-[10px] transition active:scale-95 flex items-center gap-1.5 flex-shrink-0">
+          <i data-lucide="key" class="w-4 h-4"></i>
+          <span>パスワードを入力して解除</span>
+        </button>
+      </div>
+
+      <!-- 本部の点数集計 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white p-4 rounded-[10px] border-2 border-navy-950 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black text-navy-800 flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4 text-navy-700"></i> 総報告件数 / 総点数
+            </span>
+            <span id="badge-all-reports-count" class="text-[9px] font-black px-1.5 py-0.5 bg-white rounded-[10px] text-slate-500">全日: 0件 (0pt)</span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2 flex-wrap">
+            <div class="flex items-baseline gap-0.5">
+              <span id="stat-total-reports" class="text-3xl font-black text-navy-950">-</span>
+              <span class="text-xs text-slate-500 font-black">件</span>
+            </div>
+            <span class="text-slate-300 font-bold">/</span>
+            <div class="flex items-baseline gap-0.5">
+              <span id="stat-total-score-sum" class="text-2xl font-black text-crimson-600">-</span>
+              <span class="text-xs text-crimson-700 font-black">pt</span>
+            </div>
+          </div>
+          <span class="text-[10px] text-slate-400 mt-1 font-bold" id="stat-period-label">1日目+2日目 累計</span>
+        </div>
+
+        <div class="bg-white p-4 rounded-[10px] border-2 border-navy-950 flex flex-col justify-between">
+          <span class="text-[11px] font-black text-navy-800 flex items-center gap-1.5">
+            <i data-lucide="store" class="w-4 h-4 text-navy-700"></i> 違反発生屋台数
+          </span>
+          <div class="mt-3 flex items-baseline gap-1">
+            <span id="stat-total-stalls-violated" class="text-3xl font-black text-navy-950">-</span>
+            <span class="text-xs text-slate-500 font-black">店舗</span>
+          </div>
+          <span class="text-[10px] text-slate-400 mt-1 font-bold">1点以上の屋台</span>
+        </div>
+
+        <div class="bg-crimson-50/60 p-4 rounded-[10px] border-2 border-crimson-300 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black text-crimson-900 flex items-center gap-1.5">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-crimson-600"></i> <span id="stall-warning-label">注意</span>
+            </span>
+            <span class="w-2 h-2 rounded-[10px] bg-crimson-500"></span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-1">
+            <span id="stat-warning-stalls" class="text-3xl font-black text-crimson-700">-</span>
+            <span class="text-xs text-crimson-800 font-black">店舗</span>
+          </div>
+          <span class="text-[10px] text-crimson-700/80 mt-1 font-bold">厳重指導対象</span>
+        </div>
+
+        <div class="bg-crimson-50/70 p-4 rounded-[10px] border-2 border-crimson-400 flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black text-crimson-900 flex items-center gap-1.5">
+              <i data-lucide="octagon-alert" class="w-4 h-4 text-crimson-700"></i> <span id="stall-stop-label">企画停止</span>
+            </span>
+            <span class="w-2.5 h-2.5 rounded-[10px] bg-crimson-600"></span>
+          </div>
+          <div class="mt-3 flex items-baseline gap-1">
+            <span id="stat-danger-stalls" class="text-3xl font-black text-crimson-700">-</span>
+            <span class="text-xs text-crimson-800 font-black">店舗</span>
+          </div>
+          <span class="text-[10px] text-crimson-700/90 mt-1 font-bold">営業停止審議対象</span>
+        </div>
+      </div>
+
+      <!-- Action Bar: CSV Export, Cloud Sync & Reset -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-4 rounded-[10px] border-2 border-navy-950">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black">
+            <i data-lucide="database" class="w-4 h-4"></i>
+          </span>
+          <div>
+            <h3 class="text-xs font-black text-navy-950">データ連携と外部出力</h3>
+            <p class="text-[10px] text-slate-400">CSVダウンロード、クラウド同期または累計初期化</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+          <button onclick="openCloudModal()" class="px-3 py-2 bg-white text-navy-950 rounded-[10px] text-xs font-bold">接続先URL設定</button>
+          <button id="btn-dash-sync" onclick="syncWithCloud(true)" class="px-3 py-2 bg-navy-900 hover:bg-navy-950 text-white rounded-[10px] text-xs font-black flex items-center gap-1.5 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-gold-400"></i>
+            <span>最新にする</span>
+          </button>
+          <button onclick="exportReportsCSV()" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-[10px] text-xs font-black flex items-center gap-1.5 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-gold-400"></i>
+            <span>CSV出力</span>
+          </button>
+          <button onclick="confirmResetAllReports()" class="px-3 py-2 bg-crimson-50 hover:bg-crimson-100 text-crimson-700 border-2 border-crimson-200 rounded-[10px] text-xs font-black flex items-center gap-1.5 transition">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-crimson-600"></i>
+            <span>累計リセット</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Ranked Organizations Table with Point Display -->
+      <div class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-base font-black text-navy-950 flex items-center gap-2">
+              <i data-lucide="trophy" class="w-5 h-5 text-gold-600"></i>
+              屋台別 累積点数ランキング
+            </h3>
+            <p class="text-xs text-slate-500 font-bold mt-0.5">
+              ※屋台名をタップすると、違反履歴の詳細（点数・日時・項目・報告者・メモ）を確認できます
+            </p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-[10px] border-2 border-navy-950">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="bg-navy-950 text-gold-300 font-black border-b-2 border-navy-950">
+                <th class="py-3 px-3.5 text-center w-14">順位</th>
+                <th class="py-3 px-3.5">地割番号 / エリア</th>
+                <th class="py-3 px-3.5">出店団体 / 商品</th>
+                <th class="py-3 px-3.5 text-center">累積点数</th>
+                <th class="py-3 px-3.5 text-center">状態ステータス</th>
+                <th class="py-3 px text-center">詳細</th>
+              </tr>
+            </thead>
+            <tbody id="stall-ranking-tbody" class="divide-y divide-slate-100 font-medium">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Activity Timeline Logs -->
+      <div class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950">
+        <h3 class="text-base font-black text-navy-950 flex items-center gap-2 mb-4">
+          <i data-lucide="scroll-text" class="w-5 h-5 text-navy-800"></i>
+          直近の屋台違反報告タイムライン
+        </h3>
+        <div id="recent-logs-container" class="space-y-3">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL 1: 報告完了モーダル（通常・注意・警告兼用） -->
+  <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm hidden">
+    <div id="modal-card" class="bg-white rounded-[10px] max-w-md w-full p-6 border-2 border-navy-950 transform transition-all text-center">
+      <div id="modal-icon-container" class="w-16 h-16 rounded-[10px] mx-auto flex items-center justify-center mb-4 bg-emerald-100 text-emerald-600 border-2 border-emerald-300">
+        <i data-lucide="check" class="w-8 h-8"></i>
+      </div>
+      
+      <span id="modal-status-badge" class="px-3 py-1 rounded-[10px] text-xs font-black bg-white text-slate-700 border-2 border-navy-950 inline-block mb-2">
+        記録した
+      </span>
+
+      <h3 id="modal-title" class="text-lg font-black text-navy-950">点数を加算しました</h3>
+      <p id="modal-send-status" role="status" aria-live="polite" class="mt-2 text-sm font-black text-crimson-700"></p>
+      
+      <div class="mt-4 p-4 rounded-[10px] bg-white border-2 border-navy-950 text-left space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-400 font-bold">対象屋台</span>
+          <span id="modal-info-org" class="font-black text-navy-950 truncate max-w-[200px]">--</span>
+        </div>
+        <div class="flex justify-between items-start">
+          <span class="text-slate-400 font-bold flex-shrink-0">報告項目</span>
+          <div id="modal-info-violation-list" class="font-bold text-crimson-700 text-right space-y-1">--</div>
+        </div>
+        <div class="flex justify-between border-t-2 border-navy-950 pt-2 items-center">
+          <span class="text-slate-500 font-black">現在のスライド累積点数</span>
+          <span id="modal-info-total-points" class="text-base font-black text-navy-950">0 点</span>
+        </div>
+      </div>
+
+      <!-- 本部向け停止基準の案内 -->
+      <div id="modal-warning-box" class="hidden mt-4 p-3 bg-crimson-50 border-2 border-crimson-300 rounded-[10px] text-left flex items-start gap-2.5">
+        <i data-lucide="octagon-alert" class="w-5 h-5 text-crimson-600 flex-shrink-0 mt-0.5"></i>
+        <div class="text-[11px] text-crimson-900 font-medium">
+          <strong class="font-black block"><span id="stall-stop-guidance">企画停止の基準に到達しました</span></strong>
+          屋台取締本部への即時通報・正副責任者呼び出しおよび営業停止の協議を実施してください。
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-3">
+        <button onclick="closeSuccessModal()" class="w-full py-3 bg-navy-950 hover:bg-navy-900 text-white rounded-[10px] font-black text-xs transition">
+          閉じて巡回を続ける
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: 屋台別 違反詳細モーダル -->
+  <div id="stall-detail-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-[10px] max-w-lg w-full max-h-[90vh] flex flex-col p-6 border-2 border-navy-950 text-left">
+      <div class="flex items-start justify-between pb-3 border-b-2 border-navy-950">
+        <div class="flex items-center gap-3">
+          <span id="modal-detail-badge-icon" class="w-11 h-11 rounded-[10px] bg-navy-950 text-gold-400 border-2 border-navy-950 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="store" class="w-5 h-5"></i>
+          </span>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="modal-detail-stall-badge" class="gold-plate-badge text-[11px] font-black px-2 py-0.5 rounded-[10px]">--</span>
+              <span id="modal-detail-area" class="text-xs text-slate-500 font-bold">--</span>
+            </div>
+            <h3 id="modal-detail-org-name" class="text-base font-black text-navy-950 mt-0.5">--</h3>
+          </div>
+        </div>
+        <button onclick="closeStallDetailModal()" class="w-8 h-8 rounded-[10px] bg-white hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- 選択中期間の小計メイン表示 -->
+      <div class="py-3 bg-white px-4 rounded-[10px] my-3 border-2 border-navy-950 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-bold text-slate-400 block" id="modal-detail-period-title">現在のスライド累積点数</span>
+          <span id="modal-detail-total-score" class="text-2xl font-black text-navy-950">0 点</span>
+        </div>
+        <div id="modal-detail-status-pill">
+          <!-- Status pill -->
+        </div>
+      </div>
+
+      <!-- 全スライド期間の小計一覧グリッド（小計の欠落防止） -->
+      <div class="grid grid-cols-4 gap-1.5 mb-3 text-center">
+        <div id="modal-box-day1-2" class="p-2 rounded-[10px] border-2 bg-white flex flex-col justify-between">
+          <span class="text-[9px] font-bold text-slate-400 block leading-tight">1+2日目</span>
+          <span id="modal-score-day1-2" class="text-xs sm:text-sm font-black text-navy-950">0pt</span>
+        </div>
+        <div id="modal-box-day2-3" class="p-2 rounded-[10px] border-2 bg-white flex flex-col justify-between">
+          <span class="text-[9px] font-bold text-slate-400 block leading-tight">2+3日目</span>
+          <span id="modal-score-day2-3" class="text-xs sm:text-sm font-black text-navy-950">0pt</span>
+        </div>
+        <div id="modal-box-day3-4" class="p-2 rounded-[10px] border-2 bg-white flex flex-col justify-between">
+          <span class="text-[9px] font-bold text-slate-400 block leading-tight">3+4日目</span>
+          <span id="modal-score-day3-4" class="text-xs sm:text-sm font-black text-navy-950">0pt</span>
+        </div>
+        <div id="modal-box-all" class="p-2 rounded-[10px] border-2 bg-white flex flex-col justify-between">
+          <span class="text-[9px] font-bold text-slate-400 block leading-tight">全日総計</span>
+          <span id="modal-score-all" class="text-xs sm:text-sm font-black text-navy-950">0pt</span>
+        </div>
+      </div>
+
+      <div class="text-xs font-black text-slate-500 mb-2 flex items-center gap-1">
+        <i data-lucide="history" class="w-3.5 h-3.5 text-navy-950"></i> 違反報告履歴一覧
+      </div>
+
+      <div id="modal-detail-list" class="space-y-2.5 overflow-y-auto pr-1 flex-1 min-h-[160px]">
+        <!-- Populated via JS -->
+      </div>
+
+      <div class="mt-4 pt-3 border-t-2 border-navy-950 flex justify-end">
+        <button onclick="closeStallDetailModal()" class="px-5 py-2.5 bg-navy-950 text-white font-bold rounded-[10px] text-xs transition hover:bg-navy-900">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: パスワード入力モーダル (局長・チーフ認証) -->
+  <div id="password-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-[10px] max-w-xs w-full p-6 border-2 border-navy-950 text-center">
+      <div class="w-12 h-12 rounded-[10px] mx-auto flex items-center justify-center mb-3 bg-navy-950 text-gold-400 border-2 border-navy-950">
+        <i data-lucide="lock" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-black text-navy-950">局長・チーフ認証</h3>
+      <p class="text-xs text-slate-500 mt-1">点数集計を閲覧するにはパスワードが必要です</p>
+      
+      <div class="mt-4">
+        <input type="password" id="input-chief-passcode" placeholder="パスワードを入力" class="w-full px-3 py-2.5 text-center text-base font-black bg-white border-2 border-navy-950 rounded-[10px] focus:ring-2 focus:ring-navy-900 focus:outline-none" onkeydown="if(event.key==='Enter') verifyPasscode();">
+        <p id="password-error-msg" class="text-xs font-black text-crimson-600 mt-1.5 hidden">パスワードが正しくありません</p>
+      </div>
+
+      <div class="mt-5 flex gap-2">
+        <button type="button" onclick="closePasswordModal()" class="flex-1 py-2 bg-white hover:bg-slate-200 text-slate-600 font-bold rounded-[10px] text-xs transition">
+          キャンセル
+        </button>
+        <button type="button" onclick="verifyPasscode()" class="flex-1 py-2 bg-navy-950 hover:bg-navy-900 text-white font-black rounded-[10px] text-xs transition">
+          解除して表示
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: 累計リセット確認モーダル -->
+  <div id="reset-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-[10px] max-w-sm w-full p-6 border-2 border-crimson-200 text-center">
+      <div class="w-14 h-14 rounded-[10px] mx-auto flex items-center justify-center mb-3 bg-crimson-100 text-crimson-600 border-2 border-crimson-300">
+        <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+      </div>
+      <h3 class="text-base font-black text-navy-950">累計違反データをリセットしますか？</h3>
+      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+        登録済みの全屋台違反報告データと累積点数がクリアされます。
+      </p>
+      <div class="mt-5 flex gap-2">
+        <button onclick="closeResetModal()" class="flex-1 py-2.5 bg-white hover:bg-slate-200 text-slate-700 font-bold rounded-[10px] text-xs transition">
+          キャンセル
+        </button>
+        <button onclick="executeResetAllReports()" class="flex-1 py-2.5 bg-crimson-600 hover:bg-crimson-700 text-white font-black rounded-[10px] text-xs transition">
+          リセット実行
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Googleスプレッドシート（GAS）クラウド連携設定モーダル -->
+  <div id="cloud-config-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-[10px] max-w-md w-full p-6 border-2 border-navy-950 text-left">
+      <div class="flex items-center justify-between pb-3 border-b-2 border-navy-950">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black">
+            <i data-lucide="link" class="w-4 h-4"></i>
+          </span>
+          <h3 class="text-sm font-black text-navy-950">屋台取締本部 全体同期設定</h3>
+        </div>
+        <button onclick="closeCloudModal()" class="w-8 h-8 rounded-[10px] bg-white hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="py-4 space-y-3 text-xs">
+        <p class="text-slate-600 leading-relaxed font-medium">
+          Google Apps Scriptで発行した「ウェブアプリのURL」を入力すると、全屋台巡回スタッフのスマホと本部PCの間でデータが同期されます。
+        </p>
+        
+        <div>
+          <label for="input-cloud-url" class="block font-black text-navy-950 mb-1">Google Apps Script WebApp URL</label>
+          <input type="url" id="input-cloud-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full px-3.5 py-2.5 bg-white border-2 border-navy-950 rounded-[10px] font-mono text-[11px] text-navy-950 focus:ring-2 focus:ring-navy-900 focus:outline-none">
+        </div>
+
+        <div class="p-3 bg-white rounded-[10px] text-[11px] text-slate-500 space-y-1">
+          <span class="font-bold text-navy-900 block">接続先の切り替えについて</span>
+          空欄の場合は標準のGASに接続します。接続先を変えた後は本部の合言葉を再入力してください。圏外の報告は端末に保存し、復帰後に再送します。
+        </div>
+      </div>
+
+      <div class="pt-3 border-t-2 border-navy-950 flex gap-2 justify-end">
+        <button onclick="clearCloudUrl()" class="px-4 py-2.5 bg-white hover:bg-slate-200 text-slate-600 font-bold rounded-[10px] text-xs transition">
+          標準URLに戻す
+        </button>
+        <button onclick="saveCloudUrl()" class="px-5 py-2.5 bg-navy-950 hover:bg-navy-900 text-white font-black rounded-[10px] text-xs transition">
+          保存して同期
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ----------------------------------------------------
+    // MASTER DATA: 4 Official Stall Areas
+    // ----------------------------------------------------
+    const AREAS = [
+      { id: "G", name: "富士見ゲート前", code: "G", count: 5, icon: "door-open" },
+      { id: "C", name: "中央広場(外濠前)", code: "C", count: 37, icon: "layers" },
+      { id: "T", name: "富士見坂庭園", code: "T", count: 32, icon: "trees" },
+      { id: "F", name: "富士見坂ホール", code: "F", count: 9, icon: "building-2" }
+    ];
+
+    // ----------------------------------------------------
+    // MASTER DATA: Official Stall Allocations (83 Stalls)
+    // ----------------------------------------------------
+    const STALL_PLANS = [
+      // 1. 富士見ゲート前 (G) - 5企画
+      { stallId: "G-1", badgeName: "G-1", orgNumber: "237", areaId: "G", orgName: "eSportsサークルHAZE", menuText: "焼き芋", dates: ["10-31", "11-01", "11-02", "11-03"], dateScheduleText: "10月31日～11月3日(全日)" },
+      { stallId: "G-ZEN-2", badgeName: "G前半-2", orgNumber: "276", areaId: "G", orgName: "人間環境学部 瀧澤ゼミ", menuText: "塩焼きそば", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "G-ZEN-3", badgeName: "G前半-3", orgNumber: "104", areaId: "G", orgName: "桃山ゼミ", menuText: "豚汁", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "G-KOU-2", badgeName: "G後半-2", orgNumber: "252", areaId: "G", orgName: "法政大学バスケットボール愛好会", menuText: "焼き鳥、ドリンク", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "G-KOU-3", badgeName: "G後半-3", orgNumber: "167", areaId: "G", orgName: "料理研究会", menuText: "塩焼きそば", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+
+      // 2. キャンパス中央広場(外濠校舎前) (C) - 37企画
+      { stallId: "C-1", badgeName: "C-1", orgNumber: "242", areaId: "C", orgName: "法政大学イベントサークルSERA", menuText: "焼きそば", dates: ["10-31", "11-01", "11-02", "11-03"], dateScheduleText: "10月31日～11月3日(全日)" },
+      { stallId: "C-2", badgeName: "C-2", orgNumber: "128", areaId: "C", orgName: "合気道部", menuText: "団子", dates: ["10-31", "11-01", "11-02", "11-03"], dateScheduleText: "10月31日～11月3日(全日)" },
+      { stallId: "C-3", badgeName: "C-3", orgNumber: "206", areaId: "C", orgName: "法政アクアダイビングクラブ", menuText: "たこ焼き", dates: ["10-31", "11-01", "11-02", "11-03"], dateScheduleText: "10月31日～11月3日(全日)" },
+      { stallId: "C-4", badgeName: "C-4", orgNumber: "251", areaId: "C", orgName: "volare", menuText: "フランクフルト", dates: ["10-31", "11-01", "11-02", "11-03"], dateScheduleText: "10月31日～11月3日(全日)" },
+      { stallId: "C-5", badgeName: "C-5", orgNumber: "204", areaId: "C", orgName: "法政大学英語研究会", menuText: "豚キムチ焼きそば", dates: ["10-31", "11-01", "11-02", "11-03"], dateScheduleText: "10月31日～11月3日(全日)" },
+      { stallId: "C-ZEN-6", badgeName: "C前半-6", orgNumber: "138", areaId: "C", orgName: "Hosei AI コミュニティ - HAC", menuText: "バタフライピーレモネード", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-7", badgeName: "C前半-7", orgNumber: "231", areaId: "C", orgName: "SCムサコ", menuText: "肉巻きおにぎり", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-8", badgeName: "C前半-8", orgNumber: "170", areaId: "C", orgName: "わりばし", menuText: "カリーブルスト", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-9", badgeName: "C前半-9", orgNumber: "151", areaId: "C", orgName: "市ケ谷オープンキャンパススタッフ", menuText: "白玉ドリンク", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-10", badgeName: "C前半-10", orgNumber: "265", areaId: "C", orgName: "TKB05SYS", menuText: "ホットク", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-12", badgeName: "C前半-12", orgNumber: "241", areaId: "C", orgName: "歴史研究会", menuText: "団子", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-14", badgeName: "C前半-14", orgNumber: "238", areaId: "C", orgName: "鉄道会", menuText: "フランクフルト", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-15", badgeName: "C前半-15", orgNumber: "174", areaId: "C", orgName: "法政大学天文研究会", menuText: "ドーナツ", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-16", badgeName: "C前半-16", orgNumber: "225", areaId: "C", orgName: "Dining Room", menuText: "焼きそば", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-17", badgeName: "C前半-17", orgNumber: "266", areaId: "C", orgName: "市ヶ谷鉄道研究会", menuText: "玉こんにゃく", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-18", badgeName: "C前半-18", orgNumber: "220", areaId: "C", orgName: "HOSEI BIRYANI LABO", menuText: "カティロール", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-19", badgeName: "C前半-19", orgNumber: "163", areaId: "C", orgName: "橙書会", menuText: "ワッフル", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-20", badgeName: "C前半-20", orgNumber: "194", areaId: "C", orgName: "法政大学バドミントン同好会'72", menuText: "お好み焼き", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-21", badgeName: "C前半-21", orgNumber: "112", areaId: "C", orgName: "法政大学紅茶研究会", menuText: "ソイミルクティー", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-ZEN-22", badgeName: "C前半-22", orgNumber: "240", areaId: "C", orgName: "松本教員 Aゼミ", menuText: "飲むパンナコッタドリンク", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "C-KOU-6", badgeName: "C後半-6", orgNumber: "120", areaId: "C", orgName: "法政大学交響楽団", menuText: "焼きうどん", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-7", badgeName: "C後半-7", orgNumber: "124", areaId: "C", orgName: "With Heart", menuText: "焼き餃子", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-8", badgeName: "C後半-8", orgNumber: "224", areaId: "C", orgName: "法学会国際法研究会", menuText: "肉巻きおにぎり", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-9", badgeName: "C後半-9", orgNumber: "135", areaId: "C", orgName: "法政バーベル部", menuText: "たません", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-10", badgeName: "C後半-10", orgNumber: "184", areaId: "C", orgName: "法政Skylarks", menuText: "パンケーキ", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-11", badgeName: "C後半-11", orgNumber: "257", areaId: "C", orgName: "法政大学中国留学生学友会", menuText: "ミルクティー", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-12", badgeName: "C後半-12", orgNumber: "249", areaId: "C", orgName: "kids room", menuText: "焼きそば", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-13", badgeName: "C後半-13", orgNumber: "215", areaId: "C", orgName: "広告研究会", menuText: "スモア", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-14", badgeName: "C後半-14", orgNumber: "160", areaId: "C", orgName: "経営学部学術ゼミナール委員会", menuText: "クレープ", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-15", badgeName: "C後半-15", orgNumber: "162", areaId: "C", orgName: "法政大学ローバース隊", menuText: "小籠包", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-16", badgeName: "C後半-16", orgNumber: "234", areaId: "C", orgName: "ちーかわ", menuText: "麻婆豆腐", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-17", badgeName: "C後半-17", orgNumber: "212", areaId: "C", orgName: "人間環境学部 研究会A 武石ゼミ", menuText: "焼き餃子", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-18", badgeName: "C後半-18", orgNumber: "201", areaId: "C", orgName: "応援団", menuText: "ピーチウーロン、マンゴーウーロン", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-19", badgeName: "C後半-19", orgNumber: "147", areaId: "C", orgName: "女子サッカーサークルBelinda", menuText: "バタフライレモネード", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-20", badgeName: "C後半-20", orgNumber: "247", areaId: "C", orgName: "法政大学フットサル同好会together", menuText: "フランクフルト", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-21", badgeName: "C後半-21", orgNumber: "165", areaId: "C", orgName: "法政大学居合道部", menuText: "肉巻きおにぎり", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "C-KOU-22", badgeName: "C後半-22", orgNumber: "235", areaId: "C", orgName: "法政大学体育会空手部", menuText: "じゃがバター", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+
+      // 3. 富士見坂庭園 (T) - 32企画
+      { stallId: "T-ZEN-1", badgeName: "T前半-1", orgNumber: "191", areaId: "T", orgName: "チーム宮本", menuText: "チュロス", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-2", badgeName: "T前半-2", orgNumber: "149", areaId: "T", orgName: "KYOPRO (課外教養プログラムプロジェクト)", menuText: "フライドポテト", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-3", badgeName: "T前半-3", orgNumber: "226", areaId: "T", orgName: "学友会サッカー部", menuText: "チュロス", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-4", badgeName: "T前半-4", orgNumber: "213", areaId: "T", orgName: "VSP", menuText: "チーズハットグ", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-5", badgeName: "T前半-5", orgNumber: "177", areaId: "T", orgName: "法政大学生協学生委員会", menuText: "唐揚げ", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-6", badgeName: "T前半-6", orgNumber: "260", areaId: "T", orgName: "アナウンス研究会", menuText: "フライドポテト", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-7", badgeName: "T前半-7", orgNumber: "236", areaId: "T", orgName: "ちふのわ", menuText: "揚げパスタ", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-8", badgeName: "T前半-8", orgNumber: "217", areaId: "T", orgName: "アントレプレナーシップ研究会", menuText: "チュロス", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-9", badgeName: "T前半-9", orgNumber: "182", areaId: "T", orgName: "アカデミー合唱団", menuText: "揚げさつまいも", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-10", badgeName: "T前半-10", orgNumber: "141", areaId: "T", orgName: "剛柔流空手道部", menuText: "フライドポテト", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-11", badgeName: "T前半-11", orgNumber: "140", areaId: "T", orgName: "法政リバーホーステニスクラブ", menuText: "焼き餃子", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-12", badgeName: "T前半-12", orgNumber: "246", areaId: "T", orgName: "岩田ゼミ", menuText: "フライドポテト", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-13", badgeName: "T前半-13", orgNumber: "270", areaId: "T", orgName: "IVUSA市ヶ谷クラブ", menuText: "フライドローストチキン", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-14", badgeName: "T前半-14", orgNumber: "150", areaId: "T", orgName: "Hosepipe", menuText: "焼きマシュマロ", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-15", badgeName: "T前半-15", orgNumber: "105", areaId: "T", orgName: "キャラバン部", menuText: "焼きそば", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-ZEN-16", badgeName: "T前半-16", orgNumber: "211", areaId: "T", orgName: "チーム・オレンジ", menuText: "牛タンつくね", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "T-KOU-1", badgeName: "T後半-1", orgNumber: "110", areaId: "T", orgName: "志雄会", menuText: "チュロス", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-2", badgeName: "T後半-2", orgNumber: "245", areaId: "T", orgName: "法政ワールドテニスクラブ", menuText: "フライドポテト", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-3", badgeName: "T後半-3", orgNumber: "210", areaId: "T", orgName: "Boissonade FC", menuText: "チュロス", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-4", badgeName: "T後半-4", orgNumber: "159", areaId: "T", orgName: "グリーンテニスクラブ", menuText: "ドーナツ", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-5", badgeName: "T後半-5", orgNumber: "166", areaId: "T", orgName: "自主法政祭実行委員会多摩地区", menuText: "シャカシャカポテト", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-6", badgeName: "T後半-6", orgNumber: "178", areaId: "T", orgName: "法律相談部", menuText: "チュロス", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-7", badgeName: "T後半-7", orgNumber: "196", areaId: "T", orgName: "法政大学カメラ部", menuText: "さつまいもボール", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-8", badgeName: "T後半-8", orgNumber: "253", areaId: "T", orgName: "富士見サッカークラブ", menuText: "チーズボール", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-9", badgeName: "T後半-9", orgNumber: "227", areaId: "T", orgName: "宮澤信二郎ゼミ", menuText: "フライドポテト", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-10", badgeName: "T後半-10", orgNumber: "230", areaId: "T", orgName: "法政大学第二体育会水泳部", menuText: "チュロス", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-11", badgeName: "T後半-11", orgNumber: "232", areaId: "T", orgName: "Wings", menuText: "フランクフルト", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-12", badgeName: "T後半-12", orgNumber: "192", areaId: "T", orgName: "ラッシーどすこい連盟", menuText: "ラッシー", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-13", badgeName: "T後半-13", orgNumber: "156", areaId: "T", orgName: "エバーグレーススキーチーム", menuText: "焼き鳥", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-14", badgeName: "T後半-14", orgNumber: "214", areaId: "T", orgName: "第二体育会卓球部", menuText: "たこ焼き", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-15", badgeName: "T後半-15", orgNumber: "161", areaId: "T", orgName: "法政大学旅行サークル", menuText: "フライドポテト", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "T-KOU-16", badgeName: "T後半-16", orgNumber: "264", areaId: "T", orgName: "映画愛好会", menuText: "餃子", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+
+      // 4. 富士見坂ホール(屋内屋台) (F) - 9企画
+      { stallId: "F-ZEN-1", badgeName: "F前半-1", orgNumber: "222", areaId: "F", orgName: "ACIプロジェクト", menuText: "シュガートースト", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "F-ZEN-2", badgeName: "F前半-2", orgNumber: "243", areaId: "F", orgName: "Cross Bridge", menuText: "ポップコーン", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "F-ZEN-3", badgeName: "F前半-3", orgNumber: "261", areaId: "F", orgName: "映像研究会", menuText: "バタピーコーラ、塩レモンスポーツドリンク", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "F-ZEN-4", badgeName: "F前半-4", orgNumber: "127", areaId: "F", orgName: "学生団体フラッシュモブサークル", menuText: "小籠包", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "F-ZEN-5", badgeName: "F前半-5", orgNumber: "255", areaId: "F", orgName: "藤田ゼミ", menuText: "蒸しサツマイモ", dates: ["10-31", "11-01"], dateScheduleText: "前半 (10/31・11/1)" },
+      { stallId: "F-KOU-1", badgeName: "F後半-1", orgNumber: "137", areaId: "F", orgName: "Club Mickey", menuText: "ギョウザドッグ", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "F-KOU-2", badgeName: "F後半-2", orgNumber: "254", areaId: "F", orgName: "ミニコミ出版研究会", menuText: "たい焼き", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "F-KOU-3", badgeName: "F後半-3", orgNumber: "168", areaId: "F", orgName: "法政大学かるた会", menuText: "鈴菓子", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" },
+      { stallId: "F-KOU-4", badgeName: "F後半-4", orgNumber: "189", areaId: "F", orgName: "児童文化研究会", menuText: "ヨーヨー、スーパーボール、コリントゲーム", dates: ["11-02", "11-03"], dateScheduleText: "後半 (11/2・11/3)" }
+    ];
+
+    // ----------------------------------------------------
+    // MASTER DATA: Point-based Violations (1pt, 2pt, 3pt)
+    // ----------------------------------------------------
+    const VIOLATIONS = [
+      // === 【1点】(12項目) ===
+      { id: "PT1-01", points: 1, category: "1点", name: "地割内飲食(調理者による味見、水分補給を除く)", desc: "ブース内での通常飲食行為" },
+      { id: "PT1-02", points: 1, category: "1点", name: "未申請食品の使用(1回につき違反1)", desc: "事前届け出のない食材・調味料の使用" },
+      { id: "PT1-03", points: 1, category: "1点", name: "ゴミ放置", desc: "ブース周辺や足元へのゴミ放置" },
+      { id: "PT1-04", points: 1, category: "1点", name: "ゴミ分別不良", desc: "生ゴミ・プラスチック・油等の分別不徹底" },
+      { id: "PT1-05", points: 1, category: "1点", name: "クーラーボックスが10℃以下じゃない", desc: "要冷蔵食材の保管温度が10℃を超過" },
+      { id: "PT1-06", points: 1, category: "1点", name: "会計と調理の兼任", desc: "金銭授受と調理作業の手袋交換・消毒なしでの兼務" },
+      { id: "PT1-07", points: 1, category: "1点", name: "人数超過(6人まで)", desc: "地割区画内の滞在可能人数（最大6人）を超過" },
+      { id: "PT1-08", points: 1, category: "1点", name: "不完全燃焼による調理", desc: "ガス器具の煤煙や異臭を伴う調理" },
+      { id: "PT1-09", points: 1, category: "1点", name: "地割内の勝手なレイアウトの変更", desc: "承認済みテント内レイアウトの無断変更" },
+      { id: "PT1-10", points: 1, category: "1点", name: "地割外荷物", desc: "指定テント区画外・白線外への荷物や看板のはみ出し" },
+      { id: "PT1-11", points: 1, category: "1点", name: "不適切な装飾", desc: "防炎規格外や危険を伴う看板・装飾の設置" },
+      { id: "PT1-12", points: 1, category: "1点", name: "チェック前開封", desc: "実行委の朝の開始時点検前の食材開封" },
+
+      // === 【2点】(7項目) ===
+      { id: "PT2-01", points: 2, category: "2点", name: "マスクなし調理(何人いても1回につき違反1)", desc: "調理時の衛生マスク未着用" },
+      { id: "PT2-02", points: 2, category: "2点", name: "試食提供", desc: "来場者に対する無許可の試食・サンプル配給" },
+      { id: "PT2-03", points: 2, category: "2点", name: "歩き売り", desc: "区画外の通路や他エリアでの移動販売・呼び込み" },
+      { id: "PT2-04", points: 2, category: "2点", name: "整理券と金銭の交換", desc: "指定レギュレーションに反する金銭・整理券の授受" },
+      { id: "PT2-05", points: 2, category: "2点", name: "動線を塞ぐような情宣", desc: "避難・消防動線や通行路を遮断するビラ配り" },
+      { id: "PT2-06", points: 2, category: "2点", name: "責任者・副責任者不在", desc: "現場に登録正副責任者が常駐していない状態" },
+      { id: "PT2-07", points: 2, category: "2点", name: "生肉・卵・牛乳が入っているクーラーボックスの温度が5℃以下じゃない", desc: "高リスク特定食材（生肉・卵・牛乳・生地等）の5℃超過" },
+
+      // === 【3点】(13項目) ===
+      { id: "PT3-01", points: 3, category: "3点", name: "申請外の調理器具の使用(菜箸、お玉などの調理用小物を除く)", desc: "事前貸出・承認のない高出力・危険器具の使用" },
+      { id: "PT3-02", points: 3, category: "3点", name: "無断テント立ち上げ(※調理用とテント作業用の軍手は分けること)", desc: "実行委立ち会い前の無断設営・軍手未区分" },
+      { id: "PT3-03", points: 3, category: "3点", name: "開始時チェック前に調理、販売開始", desc: "点検完了前の無断調理・フライング販売開始" },
+      { id: "PT3-04", points: 3, category: "3点", name: "企画時間外調理", desc: "許可された営業時間外（朝・夕方以降）の無断調理" },
+      { id: "PT3-05", points: 3, category: "3点", name: "揚げ物調理の際に規定外の鍋使用と調理用温度計の未所持", desc: "火災危険のある鍋規格違反および温度計不携帯" },
+      { id: "PT3-06", points: 3, category: "3点", name: "素手調理(何人いても1回につき違反1)", desc: "衛生用使い捨て手袋を着用せず素手で調理" },
+      { id: "PT3-07", points: 3, category: "3点", name: "水道水の調理利用", desc: "大学構内水道水を飲用・調理用途で無断使用" },
+      { id: "PT3-08", points: 3, category: "3点", name: "冷蔵食品をクーラーボックスで保管していない", desc: "要冷蔵食材の常温完全放置" },
+      { id: "PT3-09", points: 3, category: "3点", name: "無許可食品の持ち越し", desc: "前日仕込み・余剰食材の無断繰り越し持ち越し" },
+      { id: "PT3-10", points: 3, category: "3点", name: "申請外の調理行為", desc: "無許可の揚げ調理・焼き調理・加熱加工など" },
+      { id: "PT3-11", points: 3, category: "3点", name: "食品放置", desc: "食材や開封食品の地面・足元・室温放置" },
+      { id: "PT3-12", points: 3, category: "3点", name: "貸出備品破損", desc: "テント・長机・椅子・消火器・貸出器具の破損汚損" },
+      { id: "PT3-13", points: 3, category: "3点", name: "電力の私的利用", desc: "屋台電源からの私用スマホ充電や無許可機器接続" },
+
+      // === その他 (自由記述) ===
+      { id: "PT-FREE", points: 0, category: "その他", name: "その他（現場判断・自由記述）", isCustom: true, desc: "上記項目に該当しない現場の悪質・危険行為を自由入力して配点" }
+    ];
+  </script>
+
+  <script>
+    const STALL_RULES = {
+      "屋台_注意点": 7, "屋台_停止点": 10, "屋台_合計期間": "連続2日",
+      "屋台_その他の点数候補": "1,2,3",
+      "開催日": "2026-10-31,2026-11-01,2026-11-02,2026-11-03"
+    };
+    // Application State Keys
+    const STORAGE_KEY = "hosei79_stall_points_store";
+    const OUTBOX_KEY = "hosei79_stall_outbox";
+    let outbox = [];
+    let outboxStorageError = false;
+    let outboxReadError = false;
+    let isSendingOutbox = false;
+    let lastSubmittedIds = [];
+    let rejectedOutboxIds = new Set();
+    const CLOUD_URL_KEY = "hosei79_stall_cloud_script_url";
+
+    let wizardState = {
+      date: "10-31",
+      dateLabel: "10月31日",
+      areaId: null,
+      areaName: "",
+      stallId: null,
+      badgeName: "",
+      orgNumber: "",
+      orgName: "",
+      menuText: "",
+      selectedViolationIds: []
+    };
+
+    let reports = [];
+    let cloudApiUrl = "";
+    let currentCategoryFilter = "all";
+    let currentPeriod = "day1-2"; // 'day1-2', 'day2-3', 'day3-4', 'all'
+    let isPeriodUnlocked = false; // Locked by default
+    let pendingPeriodKey = "day1-2";
+
+    // 安全な点数パーサー（全角数字・文字列・スプレッドシートデータ型ブレの完全吸収）
+    function parsePoints(val) {
+      if (typeof val === 'number') return isNaN(val) ? 0 : val;
+      if (!val) return 0;
+      const s = String(val).replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0)).trim();
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    // 報告データから開催日インデックス (1, 2, 3, 4) を確実に判定する強固な関数
+    function getReportDayIndex(r) {
+      if (!r) return 1;
+      const date = String(r.date || "").slice(-5);
+      const dates = String(STALL_RULES["開催日"]).split(",").map(d => d.trim().slice(-5));
+      if (dates.includes(date)) return dates.indexOf(date) + 1;
+      // 登録時に明示的に付与された dayIndex があれば最優先
+      if (r.dayIndex === 1 || r.dayIndex === 2 || r.dayIndex === 3 || r.dayIndex === 4) {
+        return r.dayIndex;
+      }
+      if (r.dayIndex) {
+        const p = parseInt(String(r.dayIndex).replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0)));
+        if (p >= 1 && p <= 4) return p;
+      }
+
+      // 日付関連の全フィールドを連結して網羅的に検査
+      const dateStr = (String(r.date || "") + " " + String(r.dateLabel || "") + " " + String(r.createdAt || "") + " " + String(r.timestamp || "")).toLowerCase();
+
+      // 4日目 (11月3日) の判定
+      if (dateStr.includes("11-03") || dateStr.includes("11月3") || dateStr.includes("11/3") || dateStr.includes("11/03") || dateStr.includes("nov 3") || dateStr.includes("nov 03") || dateStr.includes("day 4") || dateStr.includes("day4")) {
+        return 4;
+      }
+      // 3日目 (11月2日) の判定
+      if (dateStr.includes("11-02") || dateStr.includes("11月2") || dateStr.includes("11/2") || dateStr.includes("11/02") || dateStr.includes("nov 2") || dateStr.includes("nov 02") || dateStr.includes("day 3") || dateStr.includes("day3")) {
+        return 3;
+      }
+      // 2日目 (11月1日) の判定
+      if (dateStr.includes("11-01") || dateStr.includes("11月1") || dateStr.includes("11/1") || dateStr.includes("11/01") || dateStr.includes("nov 1") || dateStr.includes("nov 01") || dateStr.includes("day 2") || dateStr.includes("day2")) {
+        return 2;
+      }
+      // 1日目 (10月31日) の判定
+      if (dateStr.includes("10-31") || dateStr.includes("10月31") || dateStr.includes("10/31") || dateStr.includes("oct 31") || dateStr.includes("day 1") || dateStr.includes("day1")) {
+        return 1;
+      }
+
+      return 1;
+    }
+
+    // 指定されたスライド期間に該当するか判定するヘルパー
+    function isReportInPeriod(r, periodKey) {
+      if (r.voided === true || String(r.voided).toUpperCase() === 'TRUE') return false;
+      if (!periodKey || periodKey === 'all') return true; // 全日総計は全件100%確実に含める
+      const day = getReportDayIndex(r);
+      const start = Number((String(periodKey).match(/^day(\d+)/) || [])[1]) || 1;
+      if (STALL_RULES["屋台_合計期間"] === "全日") return true;
+      if (STALL_RULES["屋台_合計期間"] === "1日") return day === start;
+      if (periodKey === 'day1-2') return (day === 1 || day === 2);
+      if (periodKey === 'day2-3') return (day === 2 || day === 3);
+      if (periodKey === 'day3-4') return (day === 3 || day === 4);
+      return true;
+    }
+
+    // 地割ID/地割番号の二重照合（クラウド同期時等の表記ズレによる点数脱落を防止）
+    function isReportForStall(r, targetStallId) {
+      if (!r || !targetStallId) return false;
+      if (r.stallId === targetStallId) return true;
+      const plan = STALL_PLANS.find(p => p.stallId === targetStallId);
+      if (plan) {
+        if (r.badgeName && (r.badgeName === plan.badgeName || r.badgeName === plan.stallId)) return true;
+        if (r.stallId && (r.stallId === plan.badgeName || r.stallId === plan.stallId)) return true;
+        if (r.orgName && r.orgName.trim() === plan.orgName.trim()) return true;
+        if (r.orgNumber && plan.orgNumber && String(r.orgNumber).trim() === String(plan.orgNumber).trim()) return true;
+      }
+      return false;
+    }
+
+
+    const DEFAULT_CLOUD_URL = "https://script.google.com/macros/s/AKfycbwrE8tJWqJjqO-K_Agil6hJhGz43imXjNFrHhCaMTxgZYh1jEhVg7vQ8RYKz4dExLpP/exec";
+    const APP_TYPE = "stall";
+    const CONFIG_KEY = "hosei79_stall_config";
+    const HQ_PASS_KEY = "hosei79_stall_hq_pass";
+    const INITIAL_ITEMS = VIOLATIONS.map(item => ({ ...item }));
+    const INITIAL_RULES = { ...STALL_RULES };
+    let configVersion = null;
+    let configLoading = null;
+    let hqAuthenticated = false;
+    let syncGeneration = 0;
+    let resettingReports = false;
+    let rejectedReasons = new Map();
+
+    function getHqPass() {
+      if (!hqAuthenticated) return "";
+      try { return sessionStorage.getItem(HQ_PASS_KEY) || ""; } catch (e) { return ""; }
+    }
+
+    function clearHqSession() {
+      hqAuthenticated = false;
+      isPeriodUnlocked = false;
+      syncGeneration++;
+      try { sessionStorage.removeItem(HQ_PASS_KEY); } catch (e) {}
+      closeCloudModal();
+      closeResetModal();
+      document.getElementById("success-modal").classList.add("hidden");
+      closeStallDetailModal();
+      switchMainTab("report");
+    }
+
+    function authMessage(code) {
+      if (code === "auth_locked") return "合言葉の間違いが続いたため、10分ほど待ってから入力してください。";
+      if (code === "auth_failed") return "合言葉が違います。入力し直してください。";
+      if (code === "admin_not_configured") return "GASに本部の合言葉が未設定です。本部で設定してください。";
+      return "認証できませんでした。接続を確認して再度お試しください。";
+    }
+
+    function showAuthError(code) {
+      const message = authMessage(code);
+      const error = document.getElementById("password-error-msg");
+      error.textContent = message;
+      error.classList.remove("hidden");
+      showToast(message);
+    }
+
+    function requestHqLogin() {
+      document.getElementById("password-modal").classList.remove("hidden");
+      document.getElementById("password-error-msg").classList.add("hidden");
+      const input = document.getElementById("input-chief-passcode");
+      input.value = "";
+      input.focus();
+    }
+
+    async function hqLogin(pass) {
+      clearHqSession();
+      if (!String(pass || "").trim()) { showAuthError("auth_failed"); return false; }
+      try {
+        const result = await cloudRequest("authcheck", { pass });
+        await refreshConfigIfChanged(result);
+        if (result.status !== "success" || result.data?.ok !== true) {
+          showAuthError(result.error); return false;
+        }
+        sessionStorage.setItem(HQ_PASS_KEY, pass);
+        hqAuthenticated = true;
+        isPeriodUnlocked = true;
+        document.getElementById("input-chief-passcode").value = "";
+        document.getElementById("password-error-msg").classList.add("hidden");
+        closePasswordModal();
+        await refreshConfigIfChanged(result);
+        await syncWithCloud(false);
+        return !!getHqPass();
+      } catch (e) {
+        clearHqSession();
+        showAuthError("connection_failed");
+        return false;
+      }
+    }
+
+    async function cloudRequest(action, body) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      const endpoint = cloudApiUrl;
+      try {
+        const url = new URL(endpoint);
+        // URL保存値に残っていても、認証情報はクエリへ送らない。
+        url.search = "";
+        const options = { signal: controller.signal, headers: { Accept: "application/json" } };
+        if (body === undefined) {
+          url.searchParams.set("action", action);
+          url.searchParams.set("app", APP_TYPE);
+        } else {
+          options.method = "POST";
+          options.headers["Content-Type"] = "text/plain;charset=utf-8";
+          options.body = JSON.stringify({ action, app: APP_TYPE, ...body });
+        }
+        const response = await fetch(url.href, options);
+        if (!response.ok) throw new Error("HTTP error");
+        const result = await response.json();
+        if (!result || !["success", "error"].includes(result.status)) throw new Error("Invalid API response");
+        if (endpoint !== cloudApiUrl) throw new Error("Endpoint changed");
+        return result;
+      } finally { clearTimeout(timeout); }
+    }
+
+    function applyConfig(data) {
+      if (!data || !Array.isArray(data.items) || !data.rules || typeof data.rules !== "object" || Array.isArray(data.rules)) return false;
+      // 設定シートが未作成・空のときは項目0件で返る。選択肢が消えないよう、アプリに入っている項目で動き続ける。
+      if (!data.items.length) return false;
+      if (data.items.some(item => !item || typeof item.id !== "string" || typeof item.name !== "string")) return false;
+      VIOLATIONS.splice(0, VIOLATIONS.length, ...data.items.map(item => ({ ...item, isCustom: /FREE$/.test(item.id) })));
+      wizardState.selectedViolationIds = wizardState.selectedViolationIds.filter(id => VIOLATIONS.some(item => item.id === id));
+      if (!wizardState.selectedViolationIds.some(id => VIOLATIONS.some(item => item.id === id && item.isCustom))) {
+        document.getElementById("custom-violation-box").classList.add("hidden");
+      }
+      Object.assign(STALL_RULES, INITIAL_RULES, data.rules);
+      updateStallRuleUI();
+      renderViolationItems(currentCategoryFilter);
+      updateSubmitPanel();
+      updateDashboardStats();
+      return true;
+    }
+
+    function restoreConfig() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CONFIG_KEY) || "null");
+        if (cached && cached.url === cloudApiUrl && applyConfig(cached.data)) configVersion = cached.version;
+      } catch (e) { /* 読めなければHTMLの初期値を使う。 */ }
+    }
+
+    async function loadConfig() {
+      if (configLoading) return configLoading;
+      const endpoint = cloudApiUrl;
+      configLoading = (async () => {
+        try {
+          const result = await cloudRequest("config");
+          if (result.status !== "success" || endpoint !== cloudApiUrl || !applyConfig(result.data)) return;
+          configVersion = result.configVersion;
+          try { localStorage.setItem(CONFIG_KEY, JSON.stringify({ url: endpoint, data: result.data, version: configVersion })); } catch (e) {}
+        } catch (e) { /* 通信失敗でも前回設定・初期値を維持する。 */ }
+      })();
+      try { await configLoading; } finally { configLoading = null; }
+    }
+
+    async function refreshConfigIfChanged(result) {
+      if (result.configVersion && result.configVersion !== configVersion) await loadConfig();
+    }
+
+    async function startCloudSync() {
+      cloudApiUrl = DEFAULT_CLOUD_URL;
+      try { cloudApiUrl = localStorage.getItem(CLOUD_URL_KEY) || DEFAULT_CLOUD_URL; } catch (e) {}
+      try {
+        const endpoint = new URL(cloudApiUrl);
+        if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password) throw new Error("Invalid URL");
+        endpoint.search = ""; endpoint.hash = "";
+        cloudApiUrl = endpoint.href;
+      } catch (e) { cloudApiUrl = DEFAULT_CLOUD_URL; }
+      // 旧版の永続認証フラグを引き継がない。
+      try { localStorage.removeItem("hosei79_chief_unlocked"); } catch (e) {}
+      updateStallRuleUI();
+      restoreConfig();
+      updateSyncStatusUI();
+      await loadConfig();
+      let pass = "";
+      try { pass = sessionStorage.getItem(HQ_PASS_KEY) || ""; } catch (e) {}
+      if (pass) await hqLogin(pass);
+      else await syncWithCloud(false);
+    }
+
+    // Audio synthesizer helper (Tone.js)
+    function playSound(type) {
+      try {
+        if (typeof Tone === "undefined") return;
+        if (Tone.context.state !== "running") {
+          Tone.start();
+        }
+        const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        synth.volume.value = -12;
+        if (type === 'tap') synth.triggerAttackRelease(["C5"], "32n");
+        else if (type === 'success') synth.triggerAttackRelease(["C5", "G5"], "16n");
+        else if (type === 'alert') synth.triggerAttackRelease(["F4", "B4", "F5"], "8n");
+      } catch (e) {}
+    }
+
+    function initStorageAndSync() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) reports = parsed;
+        }
+      } catch (e) {
+        reports = [];
+      }
+
+      // 未送信分は同期結果と別に保持し、保存途中で閉じても記録を復元する。
+      try {
+        const storedOutbox = JSON.parse(localStorage.getItem(OUTBOX_KEY) || "[]");
+        if (!Array.isArray(storedOutbox) || storedOutbox.some(r => !r || !r.id)) {
+          throw new Error("Invalid outbox");
+        }
+        outbox = storedOutbox;
+        const localMap = new Map(reports.map(r => [r.id, r]));
+        outbox.forEach(r => localMap.set(r.id, r));
+        reports = Array.from(localMap.values());
+      } catch (e) {
+        // 読めないキューを空配列で上書きしない。
+        outboxStorageError = true;
+        outboxReadError = true;
+      }
+      updateOutboxStatusUI();
+
+      startCloudSync();
+    }
+
+    function saveReportsLocally() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+      } catch (e) {}
+    }
+
+    function saveOutbox(nextOutbox) {
+      try {
+        localStorage.setItem(OUTBOX_KEY, JSON.stringify(nextOutbox));
+        outbox = nextOutbox;
+        outboxStorageError = false;
+        updateOutboxStatusUI();
+        return true;
+      } catch (e) {
+        outboxStorageError = true;
+        updateOutboxStatusUI();
+        return false;
+      }
+    }
+
+    function enqueueReports(entries) {
+      if (resettingReports) { showToast("初期化中です。入力を残しています。完了後に登録してください。"); return false; }
+      // 保存に失敗した場合は完了扱いにせず、入力を残す。
+      if (outboxReadError || !saveOutbox([...outbox, ...entries])) {
+        showToast("端末に保存できません。入力を残しています。空き容量・保存設定を確認してください。");
+        return false;
+      }
+      return true;
+    }
+
+    function updateOutboxStatusUI() {
+      const status = document.getElementById("outbox-status");
+      const rejectedCount = outbox.filter(r => rejectedOutboxIds.has(r.id)).length;
+      const details = document.getElementById("outbox-rejections");
+      details.textContent = outbox.filter(r => rejectedOutboxIds.has(r.id)).map(r => `${r.id}: ${rejectedReasons.get(r.id) || "送信内容を確認してください"}`).join(" / ");
+      details.classList.toggle("hidden", !rejectedCount);
+      status.textContent = [
+        rejectedCount ? `送信内容の確認 ${rejectedCount}件` : "",
+        outbox.length ? `未送信 ${outbox.length}件` : "",
+        outboxStorageError ? "端末保存を確認してください" : ""
+      ].filter(Boolean).join(" / ");
+      status.classList.toggle("hidden", !outbox.length && !outboxStorageError);
+
+      if (!lastSubmittedIds.length) return;
+      const pending = lastSubmittedIds.filter(id => outbox.some(r => r.id === id)).length;
+      const modalStatus = document.getElementById("modal-send-status");
+      const needsReview = lastSubmittedIds.some(id => rejectedOutboxIds.has(id) && outbox.some(r => r.id === id));
+      modalStatus.textContent = needsReview
+        ? `未送信 ${pending}件。本部に内容を確認。記録は端末に保存済み`
+        : pending
+        ? `未送信 ${pending}件。電波が戻ったら自動で送る`
+        : "本部に届いた";
+      modalStatus.className = `mt-2 text-sm font-black ${pending ? "text-crimson-700" : "text-emerald-700"}`;
+    }
+
+    function updateSyncStatusUI() {
+      const banner = document.getElementById("cloud-banner-text");
+      const indicator = document.getElementById("sync-status-indicator");
+      if (cloudApiUrl) {
+        banner.innerHTML = `同期 <span class="text-navy-950 font-black">本部と接続中</span>`;
+        indicator.innerText = "クラウド同期中";
+        indicator.className = "text-[10px] text-navy-950 font-bold hidden sm:inline";
+      } else {
+        banner.innerHTML = `同期 <span class="text-navy-950">端末内保存（リロード保持対応）</span>`;
+        indicator.innerText = "ローカル保存中";
+        indicator.className = "text-[10px] text-navy-950 font-bold hidden sm:inline";
+      }
+    }
+
+    function openCloudModal() {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      document.getElementById("input-cloud-url").value = cloudApiUrl;
+      document.getElementById("cloud-config-modal").classList.remove("hidden");
+    }
+
+    function closeCloudModal() {
+      document.getElementById("cloud-config-modal").classList.add("hidden");
+    }
+
+    async function saveCloudUrl() {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      if (isSendingOutbox || resettingReports) { showToast("送信・初期化の完了後に設定してください。"); return; }
+      const input = document.getElementById("input-cloud-url").value.trim();
+      let endpoint;
+      try {
+        endpoint = new URL(input || DEFAULT_CLOUD_URL);
+        if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password) throw new Error("Invalid URL");
+        endpoint.search = "";
+        endpoint.hash = "";
+      } catch (e) { showToast("httpsから始まるGASのURLを入力してください。"); return; }
+      if (configLoading) await configLoading;
+      cloudApiUrl = endpoint.href;
+      clearHqSession();
+      configVersion = null;
+      applyConfig({ items: INITIAL_ITEMS, rules: INITIAL_RULES });
+      try {
+        localStorage.setItem(CLOUD_URL_KEY, cloudApiUrl);
+      } catch (e) {}
+      updateSyncStatusUI();
+      closeCloudModal();
+      await loadConfig();
+      if (cloudApiUrl) syncWithCloud(true);
+    }
+
+    function clearCloudUrl() {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      document.getElementById("input-cloud-url").value = DEFAULT_CLOUD_URL;
+      return saveCloudUrl();
+    }
+
+    async function syncWithCloud(notifySuccess = false) {
+      if (!cloudApiUrl || resettingReports) return;
+      postReportsToCloud();
+      const generation = syncGeneration;
+      const pass = getHqPass();
+      const buttons = ["btn-manual-sync", "btn-dash-sync"].map(id => document.getElementById(id)).filter(Boolean);
+      buttons.forEach(button => { button.disabled = true; });
+      try {
+        const result = await cloudRequest("reports", pass ? { pass } : undefined);
+        await refreshConfigIfChanged(result);
+        if (generation !== syncGeneration || resettingReports) return;
+        if (result.status !== "success") {
+          if (pass && ["auth_failed", "auth_locked", "admin_not_configured"].includes(result.error)) {
+            clearHqSession(); requestHqLogin(); showAuthError(result.error);
+          }
+          return;
+        }
+        if (!Array.isArray(result.data?.reports)) return;
+        const localMap = new Map(reports.filter(r => r && r.id).map(r => [r.id, r]));
+        result.data.reports.forEach(report => {
+          if (report && report.id) localMap.set(report.id, { ...localMap.get(report.id), ...report });
+        });
+        outbox.forEach(report => { if (!localMap.has(report.id)) localMap.set(report.id, report); });
+        reports = Array.from(localMap.values());
+        saveReportsLocally();
+        updateDashboardStats();
+        if (wizardState.areaId) renderStallList();
+        if (notifySuccess) showToast("最新にした");
+      } catch (e) {
+        if (notifySuccess) showToast("クラウド同期通信に失敗しました。端末データを使用します。");
+      } finally { buttons.forEach(button => { button.disabled = false; }); }
+    }
+
+    async function postReportsToCloud() {
+      if (!cloudApiUrl || !outbox.length || isSendingOutbox || outboxReadError || resettingReports) return;
+      isSendingOutbox = true;
+      try {
+        while (cloudApiUrl && outbox.length) {
+          // 送信中に増えた報告を消さないよう、今回の送信分だけを記録する。
+          const entries = outbox.slice(0, 200);
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 15000);
+          try {
+            const response = await fetch(cloudApiUrl, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({ action: "add", app: APP_TYPE, reports: entries }),
+              signal: controller.signal
+            });
+            if (!response.ok) return;
+            const result = await response.json();
+            if (!result) return;
+            await refreshConfigIfChanged(result);
+            if (result.status !== "success") return;
+            const data = result.data;
+            if (!data || !Array.isArray(data.accepted) || !Array.isArray(data.duplicates) || !Array.isArray(data.rejected)) return;
+            const acknowledged = new Set([...data.accepted, ...data.duplicates]);
+            data.rejected.forEach(rejection => {
+              if (rejection && entries.some(r => r.id === rejection.id)) {
+                rejectedOutboxIds.add(rejection.id);
+                rejectedReasons.set(rejection.id, String(rejection.reason || "内容を確認してください"));
+              }
+            });
+            const sentIds = new Set(entries.filter(r => acknowledged.has(r.id) && !data.rejected.some(x => x && x.id === r.id)).map(r => r.id));
+            sentIds.forEach(id => { rejectedOutboxIds.delete(id); rejectedReasons.delete(id); });
+            if (!sentIds.size) return;
+            if (!saveOutbox(outbox.filter(r => !sentIds.has(r.id)))) return;
+            // 未受理分は破棄せず保持。同じ送信機会での再送ループを避ける。
+            if (sentIds.size < entries.length) return;
+          } finally {
+            clearTimeout(timeout);
+          }
+        }
+      } catch (err) {
+        // タイムアウト・圏外・不正な応答では保存済みキューを維持する。
+      } finally {
+        isSendingOutbox = false;
+        updateOutboxStatusUI();
+      }
+    }
+
+    async function resetCloudData() {
+      const pass = getHqPass();
+      if (!pass) { requestHqLogin(); return false; }
+      const result = await cloudRequest("reset", { pass });
+      await refreshConfigIfChanged(result);
+      if (result.status !== "success") {
+        if (["auth_failed", "auth_locked", "admin_not_configured"].includes(result.error)) {
+          clearHqSession(); requestHqLogin(); showAuthError(result.error);
+        } else showToast("初期化できませんでした。端末の報告は保持しています。");
+        return false;
+      }
+      return true;
+    }
+
+    function showToast(msg) {
+      const div = document.createElement("div");
+      div.className = "fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-navy-950 text-white border-2 border-navy-950 px-4 py-2.5 rounded-[10px] text-xs font-bold flex items-center gap-2";
+      div.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-gold-400"></i> <span></span>`;
+      div.querySelector("span").textContent = msg;
+      document.body.appendChild(div);
+      lucide.createIcons();
+      setTimeout(() => {
+        div.style.transition = "opacity 0.4s ease";
+        div.style.opacity = "0";
+        setTimeout(() => div.remove(), 400);
+      }, 3000);
+    }
+  </script>
+
+  <script>
+    // ----------------------------------------------------
+    // STEP 1 & 2: DATE & AREA SELECTION
+    // ----------------------------------------------------
+    function renderAreaGrid() {
+      const container = document.getElementById("areas-grid");
+      if (!container) return;
+
+      container.innerHTML = AREAS.map(a => {
+        const isSelected = wizardState.areaId === a.id;
+        const activeClass = isSelected
+          ? "border-navy-950 bg-navy-950 text-white "
+          : "border-navy-950 bg-white hover:border-navy-950 text-navy-950 ";
+
+        return `
+          <button type="button" onclick="selectArea('${a.id}', '${a.name}')"
+                  class="p-4 rounded-[10px] border-2 ${activeClass} transition-all text-left flex flex-col justify-between group relative overflow-hidden">
+            <div class="flex items-center justify-between w-full mb-3">
+              <span class="w-8 h-8 rounded-[10px] ${isSelected ? 'bg-gold-400 text-navy-950' : 'bg-white text-navy-950'} flex items-center justify-center font-bold text-xs">
+                <i data-lucide="${a.icon}" class="w-4 h-4"></i>
+              </span>
+              <span class="text-[10px] font-black px-2 py-0.5 rounded-[10px] ${isSelected ? 'bg-navy-900 text-gold-300 border-2 border-navy-950' : 'bg-white text-slate-500'}">
+                エリア${a.code}
+              </span>
+            </div>
+            <div>
+              <h3 class="text-xs sm:text-sm font-black leading-tight">${a.name}</h3>
+              <p class="text-[10px] ${isSelected ? 'text-slate-300' : 'text-slate-400'} mt-1 font-bold">${a.count} 店舗配置</p>
+            </div>
+            ${isSelected ? `
+              <span class="absolute top-2 right-2 text-gold-400 text-xs">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              </span>
+            ` : ''}
+          </button>
+        `;
+      }).join("");
+      lucide.createIcons();
+    }
+
+    function selectDate(dateKey, label) {
+      playSound('tap');
+      wizardState.date = dateKey;
+      wizardState.dateLabel = label;
+
+      document.querySelectorAll(".btn-date").forEach(btn => {
+        if (btn.dataset.date === dateKey) {
+          btn.className = "btn-date active p-3 rounded-[10px] border-2 border-navy-950 bg-navy-950 text-white font-black text-xs sm:text-sm flex flex-col items-center justify-center gap-0.5 transition-all";
+        } else {
+          btn.className = "btn-date p-3 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 text-navy-950 font-black text-xs sm:text-sm flex flex-col items-center justify-center gap-0.5 transition-all";
+        }
+      });
+
+      document.getElementById("live-crumb-date").innerText = label;
+
+      if (wizardState.areaId) {
+        renderStallList();
+      }
+    }
+
+    function selectArea(areaId, areaName) {
+      playSound('tap');
+      wizardState.areaId = areaId;
+      wizardState.areaName = areaName;
+
+      wizardState.stallId = null;
+      wizardState.badgeName = "";
+      wizardState.orgNumber = "";
+      wizardState.orgName = "";
+      wizardState.menuText = "";
+      wizardState.selectedViolationIds = [];
+
+      document.getElementById("live-crumb-area").innerText = areaName;
+      document.getElementById("live-crumb-area").className = "px-2 py-0.5 rounded-[10px] bg-navy-950 text-gold-300 font-black flex-shrink-0";
+      document.getElementById("live-crumb-stall").innerText = "屋台未選択";
+      document.getElementById("live-crumb-stall").className = "px-2 py-0.5 rounded-[10px] bg-white text-slate-400 flex-shrink-0";
+
+      renderAreaGrid();
+      renderStallList();
+
+      const step3 = document.getElementById("step-card-stall");
+      step3.classList.remove("opacity-50", "pointer-events-none");
+      step3.classList.add("border-navy-950");
+
+      const step4 = document.getElementById("step-card-violation");
+      step4.classList.add("opacity-50", "pointer-events-none");
+
+      updateSubmitPanel();
+      step3.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ----------------------------------------------------
+    // STEP 3: STALL SELECTION & FILTER
+    // ----------------------------------------------------
+    function renderStallList(filterText = "") {
+      const container = document.getElementById("stall-list-container");
+      if (!wizardState.areaId) return;
+
+      const normFilter = filterText.trim().toLowerCase();
+
+      const availableStalls = STALL_PLANS.filter(plan => {
+        const matchesArea = plan.areaId === wizardState.areaId;
+        const matchesDate = plan.dates.includes(wizardState.date);
+        const matchesSearch = !normFilter || 
+          plan.badgeName.toLowerCase().includes(normFilter) || 
+          plan.orgNumber.toLowerCase().includes(normFilter) || 
+          plan.orgName.toLowerCase().includes(normFilter) || 
+          plan.menuText.toLowerCase().includes(normFilter);
+
+        return matchesArea && matchesDate && matchesSearch;
+      });
+
+      if (availableStalls.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-8 text-center text-slate-400 text-xs font-bold">
+            該当する屋台が見つかりません（日程またはエリアを確認してください）
+          </div>
+        `;
+        return;
+      }
+
+      const activePeriodForDate = getPeriodForDate(wizardState.date);
+
+      container.innerHTML = availableStalls.map(s => {
+        const isSelected = wizardState.stallId === s.stallId;
+        const periodScore = getStallScore(s.stallId, activePeriodForDate);
+        const allScore = getStallScore(s.stallId, 'all');
+        const displayScore = allScore > 0 ? allScore : periodScore;
+
+        const cardStyle = isSelected
+          ? "border-navy-950 bg-white "
+          : "border-navy-950 bg-white hover:border-navy-950";
+
+        return `
+          <button type="button" onclick="selectStall('${s.stallId}', '${s.badgeName}', '${s.orgNumber}', '${s.orgName.replace(/'/g, "\\'")}', '${s.menuText.replace(/'/g, "\\'")}')"
+                  class="p-3.5 rounded-[10px] border-2 ${cardStyle} transition-all text-left flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="gold-plate-badge text-xs font-black px-2.5 py-0.5 rounded-[10px] flex items-center gap-1">
+                    <i data-lucide="store" class="w-3 h-3 text-crimson-800"></i>
+                    ${s.badgeName}
+                  </span>
+                  <span class="text-[10px] font-black px-1.5 py-0.5 rounded-[10px] bg-white text-slate-600 border-2 border-navy-950">
+                    No.${s.orgNumber}
+                  </span>
+                </div>
+                ${getHqPass() ? (displayScore > 0 ? `
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-[10px] ${
+                    displayScore >= Number(STALL_RULES["屋台_停止点"]) ? 'bg-navy-950 text-white ' :
+                    displayScore >= Number(STALL_RULES["屋台_注意点"]) ? 'bg-crimson-100 text-crimson-800 border-2 border-crimson-300' :
+                    'bg-white text-slate-700 border-2 border-navy-950'
+                  }">
+                    累積 ${displayScore} 点
+                  </span>
+                ` : `
+                  <span class="text-[10px] font-bold text-slate-400">0 点</span>
+                `) : ""}
+              </div>
+              <h4 class="text-xs sm:text-sm font-black text-navy-950 leading-snug group-hover:text-crimson-600 transition">
+                ${s.orgName}
+              </h4>
+              <p class="text-[11px] text-slate-600 font-bold mt-1.5 flex items-center gap-1.5 bg-white px-2 py-1 rounded-[10px] border-2 border-navy-950">
+                <i data-lucide="utensils" class="w-3 h-3 text-gold-600 flex-shrink-0"></i>
+                <span class="truncate">${s.menuText}</span>
+              </p>
+            </div>
+
+            <div class="mt-2.5 pt-2 border-t-2 border-navy-950 flex items-center justify-between text-[10px]">
+              <span class="text-slate-400 font-bold">${s.dateScheduleText}</span>
+              <span class="font-black ${isSelected ? 'text-crimson-600' : 'text-slate-400 group-hover:text-navy-950'}">
+                ${isSelected ? '選択中 ✓' : '選択する →'}
+              </span>
+            </div>
+          </button>
+        `;
+      }).join("");
+
+      lucide.createIcons();
+    }
+
+    function filterStalls() {
+      const q = document.getElementById("stall-search-input").value;
+      renderStallList(q);
+    }
+
+    function selectStall(stallId, badgeName, orgNumber, orgName, menuText) {
+      playSound('tap');
+      wizardState.stallId = stallId;
+      wizardState.badgeName = badgeName;
+      wizardState.orgNumber = orgNumber;
+      wizardState.orgName = orgName;
+      wizardState.menuText = menuText;
+      wizardState.selectedViolationIds = [];
+
+      document.getElementById("live-crumb-stall").innerText = `${badgeName} : ${orgName}`;
+      document.getElementById("live-crumb-stall").className = "px-2 py-0.5 rounded-[10px] bg-navy-950 text-gold-300 font-black flex-shrink-0 truncate max-w-[200px] sm:max-w-none";
+
+      renderStallList();
+
+      const step4 = document.getElementById("step-card-violation");
+      step4.classList.remove("opacity-50", "pointer-events-none");
+      step4.classList.add("border-navy-950");
+
+      renderViolationItems(currentCategoryFilter);
+      updateSubmitPanel();
+
+      step4.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+
+  <script>
+    // ----------------------------------------------------
+    // STEP 4: POINT-BASED VIOLATIONS FILTERING & MULTI-SELECTION
+    // ----------------------------------------------------
+    function filterViolations(cat) {
+      playSound('tap');
+      currentCategoryFilter = cat;
+
+      document.querySelectorAll(".cat-pill").forEach(pill => {
+        const text = pill.innerText;
+        const matches = (cat === 'all' && text === 'すべて') || text.includes(cat);
+        if (matches) {
+          pill.className = "cat-pill active px-3.5 py-1.5 rounded-[10px] text-xs font-black bg-navy-950 text-gold-300 border-2 border-navy-950 flex-shrink-0 transition";
+        } else {
+          pill.className = "cat-pill px-3.5 py-1.5 rounded-[10px] text-xs font-bold bg-white text-slate-600 hover:bg-slate-200 flex-shrink-0 transition";
+        }
+      });
+
+      renderViolationItems(cat);
+    }
+
+    function renderViolationItems(cat) {
+      const container = document.getElementById("violation-items-grid");
+      const pointSelect = document.getElementById("custom-violation-points");
+      const previousPoint = pointSelect.value;
+      pointSelect.replaceChildren(...String(STALL_RULES["屋台_その他の点数候補"]).split(",").map(p => new Option(`${p.trim()}点`, p.trim())));
+      if ([...pointSelect.options].some(o => o.value === previousPoint)) pointSelect.value = previousPoint;
+      let items = VIOLATIONS;
+      if (cat !== 'all') {
+        items = items.filter(v => v.category === cat);
+      }
+
+      container.innerHTML = items.map(v => {
+        const isSelected = wizardState.selectedViolationIds.includes(v.id);
+        const activeClass = isSelected
+          ? "border-navy-950 bg-gold-100 "
+          : "border-navy-950 bg-white hover:border-navy-950 hover:bg-white";
+
+        const pointBadgeClass = v.points === 3 
+          ? "bg-crimson-600 text-white" 
+          : v.points === 2 
+            ? "bg-crimson-500 text-white"
+            : v.points === 1
+              ? "bg-slate-700 text-white"
+              : "bg-gold-400 text-navy-950";
+
+        return `
+          <button type="button" onclick="toggleViolation('${v.id}')"
+                  class="p-4 rounded-[10px] border-2 ${activeClass} transition-all text-left flex items-start justify-between relative overflow-hidden group">
+            <div class="pr-2 flex-1">
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-[10px] ${pointBadgeClass}">
+                  ${v.isCustom ? '自由配点' : `+${v.points}点`}
+                </span>
+                ${v.isCustom ? '<span class="text-[10px] font-black text-gold-700 bg-gold-100 border-2 border-navy-950 px-1.5 py-0.5 rounded-[10px]">現場判断</span>' : ''}
+              </div>
+              <h4 class="text-xs sm:text-sm font-black text-navy-950 leading-snug">${v.name}</h4>
+              <p class="text-[11px] text-slate-400 mt-1">${v.desc}</p>
+            </div>
+            <div class="flex flex-col items-end flex-shrink-0 ml-2">
+              <span class="text-xs font-black px-2.5 py-1.5 rounded-[10px] ${
+                isSelected 
+                  ? 'bg-navy-950 text-white'
+                  : 'bg-white text-slate-600 group-hover:bg-slate-200'
+              } transition flex items-center gap-1">
+                ${isSelected ? '<i data-lucide="check" class="w-3.5 h-3.5"></i> 選択中' : '<i data-lucide="plus" class="w-3.5 h-3.5"></i> 選択'}
+              </span>
+            </div>
+          </button>
+        `;
+      }).join("");
+      lucide.createIcons();
+    }
+
+    function toggleViolation(violationId) {
+      playSound('tap');
+      const idx = wizardState.selectedViolationIds.indexOf(violationId);
+      if (idx > -1) {
+        wizardState.selectedViolationIds.splice(idx, 1);
+      } else {
+        wizardState.selectedViolationIds.push(violationId);
+      }
+
+      const customBox = document.getElementById("custom-violation-box");
+      if (wizardState.selectedViolationIds.some(id => VIOLATIONS.some(v => v.id === id && v.isCustom))) {
+        customBox.classList.remove("hidden");
+        document.getElementById("custom-violation-name").focus();
+      } else {
+        customBox.classList.add("hidden");
+      }
+
+      updateSubmitPanel();
+      renderViolationItems(currentCategoryFilter);
+    }
+
+    function clearSelectedViolations() {
+      playSound('tap');
+      wizardState.selectedViolationIds = [];
+      document.getElementById("custom-violation-box").classList.add("hidden");
+      updateSubmitPanel();
+      renderViolationItems(currentCategoryFilter);
+    }
+
+    function updateSubmitPanel() {
+      const btn = document.getElementById("btn-submit-report");
+      const titleEl = document.getElementById("submit-violation-title");
+      const pointsNumEl = document.getElementById("submit-points-num");
+      const countNumEl = document.getElementById("submit-count-num");
+      const clearBtn = document.getElementById("btn-clear-selection");
+      const btnLabel = document.getElementById("submit-btn-label");
+
+      const count = wizardState.selectedViolationIds.length;
+
+      if (count === 0) {
+        titleEl.innerText = "違反を選ぶ（複数可）";
+        titleEl.className = "text-xs sm:text-sm font-black text-slate-400 truncate";
+        pointsNumEl.innerText = "0pt";
+        countNumEl.innerText = "0件";
+        clearBtn.classList.add("hidden");
+        btn.disabled = true;
+        btn.className = "w-full sm:w-auto px-6 py-3 rounded-[10px] bg-slate-700 text-slate-400 font-black text-sm flex items-center justify-center gap-2 cursor-not-allowed transition";
+        btnLabel.innerText = "登録する";
+        return;
+      }
+
+      clearBtn.classList.remove("hidden");
+      let totalPoints = 0;
+      wizardState.selectedViolationIds.forEach(id => {
+        const item = VIOLATIONS.find(v => v.id === id);
+        if (item) {
+          if (item.isCustom) {
+            const customPts = Number(document.getElementById("custom-violation-points").value);
+            totalPoints += customPts;
+          } else {
+            totalPoints += item.points;
+          }
+        }
+      });
+
+      pointsNumEl.innerText = `+${totalPoints}pt`;
+      countNumEl.innerText = `${count}件`;
+
+      const selectedNames = wizardState.selectedViolationIds.map(id => {
+        const item = VIOLATIONS.find(v => v.id === id);
+        return item ? item.name : id;
+      });
+
+      if (count === 1) {
+        titleEl.innerText = selectedNames[0];
+      } else {
+        titleEl.innerText = `${selectedNames[0]} 他 ${count - 1} 件`;
+      }
+      titleEl.className = "text-xs sm:text-sm font-black text-white truncate";
+
+      btn.disabled = false;
+      btnLabel.innerText = `${count}件 (${totalPoints}点加算) を確定登録`;
+      btn.className = "w-full sm:w-auto px-6 py-3 rounded-[10px] bg-navy-950 text-white font-black text-sm flex items-center justify-center gap-2 transition cursor-pointer active:scale-95";
+    }
+
+    function submitConfirmedReport() {
+      if (!wizardState.stallId || wizardState.selectedViolationIds.length === 0) return;
+
+      const reporterInput = document.getElementById("reporter-name");
+      const reporter = (reporterInput.value || "").trim();
+      if (!reporter) {
+        reporterInput.focus();
+        reporterInput.classList.add("ring-2", "ring-crimson-500", "border-crimson-500");
+        reporterInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      reporterInput.classList.remove("ring-2", "ring-crimson-500", "border-crimson-500");
+
+      let memo = (document.getElementById("report-memo").value || "").trim();
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+      // 日付キーから dayIndex を特定
+      let currentDayIndex = 1;
+      if (wizardState.date === '10-31') currentDayIndex = 1;
+      else if (wizardState.date === '11-01') currentDayIndex = 2;
+      else if (wizardState.date === '11-02') currentDayIndex = 3;
+      else if (wizardState.date === '11-03') currentDayIndex = 4;
+
+      const createdEntries = [];
+
+      wizardState.selectedViolationIds.forEach((vId, idx) => {
+        const violation = VIOLATIONS.find(v => v.id === vId);
+        if (!violation) return;
+
+        let violationName = violation.name;
+        let pts = violation.points;
+
+        if (violation.isCustom) {
+          const customName = (document.getElementById("custom-violation-name").value || "").trim();
+          if (customName) violationName = `[その他] ${customName}`;
+          pts = Number(document.getElementById("custom-violation-points").value);
+          const customDesc = (document.getElementById("custom-violation-desc").value || "").trim();
+          if (customDesc) memo = memo ? `${customDesc} / ${memo}` : customDesc;
+        }
+
+        const reportEntry = {
+          id: "STALL-REP-" + Date.now() + "-" + idx,
+          date: wizardState.date,
+          dayIndex: currentDayIndex,
+          dateLabel: wizardState.dateLabel,
+          areaId: wizardState.areaId,
+          areaName: wizardState.areaName,
+          stallId: wizardState.stallId,
+          badgeName: wizardState.badgeName,
+          orgNumber: wizardState.orgNumber,
+          orgName: wizardState.orgName,
+          menuText: wizardState.menuText,
+          violationId: violation.id,
+          violationName: violationName,
+          category: violation.category,
+          points: pts,
+          penalty: violation.penalty || "通常",
+          reporter: reporter,
+          memo: memo,
+          timestamp: timeStr,
+          createdAt: now.toISOString()
+        };
+
+        createdEntries.push(reportEntry);
+      });
+
+      if (!enqueueReports(createdEntries)) return;
+      createdEntries.forEach(entry => reports.unshift(entry));
+      saveReportsLocally();
+      postReportsToCloud();
+
+      const targetPeriod = getPeriodForDate(wizardState.date);
+      const totalScore = getStallScore(wizardState.stallId, targetPeriod);
+      updateDashboardStats();
+
+      showSuccessModal(createdEntries, totalScore);
+
+      if (getHqPass() && totalScore >= Number(STALL_RULES["屋台_停止点"])) {
+        playSound('alert');
+      } else {
+        playSound('success');
+      }
+    }
+
+    function getPeriodForDate(dateKey) {
+      const dates = String(STALL_RULES["開催日"]).split(",").map(d => d.trim().slice(-5));
+      const day = Math.max(1, dates.indexOf(dateKey) + 1);
+      if (STALL_RULES["屋台_合計期間"] === "全日") return "all";
+      if (STALL_RULES["屋台_合計期間"] === "1日") return ["day1-2", "day2-3", "day3-4", "day4"][day - 1];
+      return ["day1-2", "day1-2", "day2-3", "day3-4"][day - 1];
+    }
+
+    function stallPeriodLabel(periodKey) {
+      if (periodKey === "all" || STALL_RULES["屋台_合計期間"] === "全日") return "全日総計";
+      const start = Number((String(periodKey).match(/^day(\d+)/) || [])[1]) || 1;
+      return STALL_RULES["屋台_合計期間"] === "1日" ? `${start}日目` : `${start}日目 + ${start + 1}日目`;
+    }
+
+    function updateStallRuleUI() {
+      const warning = STALL_RULES["屋台_注意点"], stop = STALL_RULES["屋台_停止点"];
+      document.getElementById("stall-rule-guidance").textContent = `屋台は${STALL_RULES["屋台_合計期間"]}の合計で${warning}点で注意、${stop}点で企画停止となります。`;
+      document.getElementById("stall-rule-thresholds").textContent = `${warning}pt注意 / ${stop}pt停止`;
+      document.getElementById("stall-rule-period").textContent = `${STALL_RULES["屋台_合計期間"]}の積算点数と全日総計を表示（本部認証要）`;
+      document.getElementById("stall-stop-label").textContent = `企画停止 (${stop}点〜)`;
+      document.getElementById("stall-warning-label").textContent = `注意 (${warning}〜${Number(stop) - 1}点)`;
+      document.getElementById("stall-stop-guidance").textContent = `累積点数が${stop}点（企画停止）に到達しました`;
+      let fourth = document.getElementById("btn-period-day4");
+      if (!fourth) {
+        fourth = document.createElement("button");
+        fourth.type = "button"; fourth.id = "btn-period-day4";
+        fourth.className = document.getElementById("btn-period-day3-4").className;
+        fourth.onclick = () => requestPeriodAccess("day4");
+        fourth.textContent = "4日目";
+        document.getElementById("btn-period-all").before(fourth);
+      }
+      fourth.classList.toggle("hidden", STALL_RULES["屋台_合計期間"] !== "1日");
+      ["day1-2", "day2-3", "day3-4"].forEach(key => {
+        const button = document.getElementById(`btn-period-${key}`);
+        button.querySelector("span").textContent = stallPeriodLabel(key);
+        button.classList.toggle("hidden", STALL_RULES["屋台_合計期間"] === "全日");
+        document.getElementById(`modal-score-${key}`).previousElementSibling.textContent = stallPeriodLabel(key);
+      });
+      if (STALL_RULES["屋台_合計期間"] === "全日") currentPeriod = "all";
+      else if (currentPeriod === "day4" && STALL_RULES["屋台_合計期間"] !== "1日") currentPeriod = "day3-4";
+      document.getElementById("stat-period-label").textContent = stallPeriodLabel(currentPeriod) + " 累計";
+    }
+
+    function getStallScore(stallId, periodKey) {
+      const stallReports = reports.filter(r => isReportForStall(r, stallId));
+      return stallReports
+        .filter(r => isReportInPeriod(r, periodKey))
+        .reduce((sum, r) => sum + parsePoints(r.points), 0);
+    }
+
+    function showSuccessModal(entries, totalScore) {
+      const modal = document.getElementById("success-modal");
+      const iconBox = document.getElementById("modal-icon-container");
+      const statusBadge = document.getElementById("modal-status-badge");
+      const warningBox = document.getElementById("modal-warning-box");
+
+      lastSubmittedIds = entries.map(entry => entry.id);
+      updateOutboxStatusUI();
+      const firstEntry = entries[0];
+      document.getElementById("modal-info-org").innerText = `${firstEntry.badgeName} / ${firstEntry.orgName}`;
+      
+      const violationListEl = document.getElementById("modal-info-violation-list");
+      violationListEl.innerHTML = entries.map(e => `<div>・${e.violationName}</div>`).join("");
+
+      const total = document.getElementById("modal-info-total-points");
+      total.parentElement.classList.toggle("hidden", !getHqPass());
+      total.innerText = getHqPass() ? `${totalScore} 点` : "";
+
+      if (getHqPass() && totalScore >= Number(STALL_RULES["屋台_停止点"])) {
+        iconBox.className = "w-16 h-16 rounded-[10px] mx-auto flex items-center justify-center mb-4 bg-crimson-600 text-white border-2 border-crimson-400";
+        iconBox.innerHTML = `<i data-lucide="octagon-alert" class="w-8 h-8"></i>`;
+        statusBadge.className = "px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-600 text-white inline-block mb-2";
+        statusBadge.innerText = `⚠️ 累積 ${totalScore}点到達・企画停止`;
+        document.getElementById("modal-title").innerText = "重大警告：営業停止審議の基準に達しました";
+        warningBox.classList.remove("hidden");
+      } else if (getHqPass() && totalScore >= Number(STALL_RULES["屋台_注意点"])) {
+        iconBox.className = "w-16 h-16 rounded-[10px] mx-auto flex items-center justify-center mb-4 bg-crimson-100 text-crimson-600 border-2 border-crimson-300";
+        iconBox.innerHTML = `<i data-lucide="alert-triangle" class="w-8 h-8"></i>`;
+        statusBadge.className = "px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-100 text-crimson-800 border-2 border-crimson-300 inline-block mb-2";
+        statusBadge.innerText = `注意：累積 ${totalScore}点（厳重指導基準到達）`;
+        document.getElementById("modal-title").innerText = "記録した";
+        warningBox.classList.add("hidden");
+      } else {
+        iconBox.className = "w-16 h-16 rounded-[10px] mx-auto flex items-center justify-center mb-4 bg-emerald-100 text-emerald-600 border-2 border-emerald-300";
+        iconBox.innerHTML = `<i data-lucide="check" class="w-8 h-8"></i>`;
+        statusBadge.className = "px-3 py-1 rounded-[10px] text-xs font-black bg-white text-slate-700 border-2 border-navy-950 inline-block mb-2";
+        statusBadge.innerText = `${entries.length}件 記録`;
+        document.getElementById("modal-title").innerText = "記録した";
+        warningBox.classList.add("hidden");
+      }
+
+      modal.classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeSuccessModal() {
+      document.getElementById("success-modal").classList.add("hidden");
+      wizardState.selectedViolationIds = [];
+      document.getElementById("custom-violation-box").classList.add("hidden");
+      document.getElementById("custom-violation-name").value = "";
+      document.getElementById("custom-violation-desc").value = "";
+      document.getElementById("report-memo").value = "";
+
+      updateSubmitPanel();
+      renderStallList();
+      renderViolationItems(currentCategoryFilter);
+    }
+
+    function resetWorkflow() {
+      playSound('tap');
+      wizardState.areaId = null;
+      wizardState.areaName = "";
+      wizardState.stallId = null;
+      wizardState.badgeName = "";
+      wizardState.orgNumber = "";
+      wizardState.orgName = "";
+      wizardState.menuText = "";
+      wizardState.selectedViolationIds = [];
+
+      document.getElementById("live-crumb-area").innerText = "エリア未選択";
+      document.getElementById("live-crumb-area").className = "px-2 py-0.5 rounded-[10px] bg-white text-slate-400 flex-shrink-0";
+      document.getElementById("live-crumb-stall").innerText = "屋台未選択";
+      document.getElementById("live-crumb-stall").className = "px-2 py-0.5 rounded-[10px] bg-white text-slate-400 flex-shrink-0";
+
+      renderAreaGrid();
+
+      const step3 = document.getElementById("step-card-stall");
+      step3.classList.add("opacity-50", "pointer-events-none");
+      step3.classList.remove("border-navy-950");
+      document.getElementById("stall-list-container").innerHTML = `
+        <div class="col-span-full py-10 text-center text-slate-400 text-xs font-bold flex flex-col items-center justify-center gap-2">
+          <i data-lucide="arrow-up-circle" class="w-6 h-6 text-slate-300"></i>
+          <span>上のエリアを選択すると、配置屋台一覧が表示されます</span>
+        </div>
+      `;
+
+      const step4 = document.getElementById("step-card-violation");
+      step4.classList.add("opacity-50", "pointer-events-none");
+      updateSubmitPanel();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+
+  <script>
+    // ----------------------------------------------------
+    // DASHBOARD & PASSWORD LOGIC
+    // ----------------------------------------------------
+    function requestPeriodAccess(periodKey) {
+      pendingPeriodKey = periodKey;
+      if (!getHqPass()) { requestHqLogin(); return; }
+      setDashboardPeriod(periodKey);
+    }
+
+    function closePasswordModal() {
+      const modal = document.getElementById("password-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    async function verifyPasscode() {
+      const input = document.getElementById("input-chief-passcode");
+      if (await hqLogin(input.value)) {
+        playSound('success');
+        setDashboardPeriod(pendingPeriodKey || 'day1-2');
+        switchMainTab("dashboard");
+      } else input.focus();
+    }
+
+    function setDashboardPeriod(periodKey) {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      playSound('tap');
+      currentPeriod = periodKey;
+
+      document.querySelectorAll(".period-btn").forEach(btn => {
+        btn.className = "period-btn px-3 py-1.5 rounded-[10px] text-xs font-bold text-slate-300 hover:text-white transition flex items-center gap-1 flex-shrink-0";
+      });
+
+      const activeBtn = document.getElementById(`btn-period-${periodKey}`);
+      if (activeBtn) {
+        activeBtn.className = "period-btn active px-3 py-1.5 rounded-[10px] text-xs font-black bg-gold-400 text-navy-950 transition flex items-center gap-1 flex-shrink-0";
+      }
+
+      const labelMap = {
+        'day1-2': "1日目+2日目 累計 (10/31・11/1)",
+        'day2-3': "2日目+3日目 累計 (11/1・11/2)",
+        'day3-4': "3日目+4日目 累計 (11/2・11/3)",
+        'all': "全日総計 (4日間合計)"
+      };
+      const labelEl = document.getElementById("stat-period-label");
+      if (labelEl) labelEl.innerText = stallPeriodLabel(periodKey) + " 累計";
+
+      updateStallRuleUI();
+      updateDashboardStats();
+    }
+
+    function updateDashboardStats() {
+      // 1. 全日総報告件数および全日総点数は即時更新
+      const totalCount = reports.length;
+      const allScoreSum = reports.reduce((sum, r) => sum + parsePoints(r.points), 0);
+      const countBadge = document.getElementById("badge-total-reports-count");
+      if (countBadge) countBadge.innerText = totalCount;
+      const allCountBadge = document.getElementById("badge-all-reports-count");
+      if (allCountBadge) allCountBadge.innerText = getHqPass() ? `全日: ${totalCount}件 (${allScoreSum}pt)` : `全日: ${totalCount}件`;
+
+      // 2. 選択されたスライド期間の対象報告を抽出
+      const periodReports = reports.filter(r => isReportInPeriod(r, currentPeriod));
+      const periodScoreSum = periodReports.reduce((sum, r) => sum + parsePoints(r.points), 0);
+
+      // 3. 未認証時のガード
+      if (!isPeriodUnlocked) {
+        const banner = document.getElementById("dashboard-locked-banner");
+        if (banner) banner.classList.remove("hidden");
+
+        document.getElementById("stat-total-reports").innerText = "-";
+        const scoreSumEl = document.getElementById("stat-total-score-sum");
+        if (scoreSumEl) scoreSumEl.innerText = "-";
+        document.getElementById("stat-total-stalls-violated").innerText = "-";
+        document.getElementById("stat-warning-stalls").innerText = "-";
+        document.getElementById("stat-danger-stalls").innerText = "-";
+
+        const tbody = document.getElementById("stall-ranking-tbody");
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="py-12 text-center text-slate-400 font-bold text-xs sm:text-sm bg-white">
+                <div class="flex flex-col items-center justify-center gap-2">
+                  <span class="w-10 h-10 rounded-[10px] bg-slate-200 text-slate-500 flex items-center justify-center font-black">
+                    <i data-lucide="lock" class="w-5 h-5"></i>
+                  </span>
+                  <span class="text-navy-950 font-black">点数集計データはパスワードで保護されています</span>
+                  <button type="button" onclick="requestPeriodAccess(currentPeriod)" class="text-xs text-navy-900 bg-gold-400 hover:bg-gold-300 font-black px-4 py-2 rounded-[10px] transition mt-1">
+                    パスワードを入力して表示
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }
+        renderTimelineLogs();
+        lucide.createIcons();
+        return;
+      }
+
+      // 4. 認証済みの場合はバナーを隠して開錠
+      const banner = document.getElementById("dashboard-locked-banner");
+      if (banner) banner.classList.add("hidden");
+      document.querySelectorAll(".period-lock-icon").forEach(icon => {
+        icon.setAttribute("data-lucide", "lock-open");
+        icon.classList.add("text-emerald-400");
+      });
+
+      // 5. 選択中期間の統計数字を表示
+      document.getElementById("stat-total-reports").innerText = periodReports.length;
+      const scoreSumEl = document.getElementById("stat-total-score-sum");
+      if (scoreSumEl) scoreSumEl.innerText = periodScoreSum;
+
+      // 選択期間の屋台別点数
+      const periodScoreMap = {};
+      periodReports.forEach(r => {
+        const pts = parsePoints(r.points);
+        const targetPlan = STALL_PLANS.find(p => isReportForStall(r, p.stallId));
+        const stallKey = targetPlan ? targetPlan.stallId : (r.stallId || r.badgeName);
+        if (stallKey) {
+          periodScoreMap[stallKey] = (periodScoreMap[stallKey] || 0) + pts;
+        }
+      });
+
+      // 全日累計の屋台別点数
+      const allScoreMap = {};
+      reports.forEach(r => {
+        const pts = parsePoints(r.points);
+        const targetPlan = STALL_PLANS.find(p => isReportForStall(r, p.stallId));
+        const stallKey = targetPlan ? targetPlan.stallId : (r.stallId || r.badgeName);
+        if (stallKey) {
+          allScoreMap[stallKey] = (allScoreMap[stallKey] || 0) + pts;
+        }
+      });
+
+      // 選択中スライド期間で点数が発生している屋台数を集計
+      let periodViolatedCount = 0;
+      let warningCount = 0;
+      let dangerCount = 0;
+
+      Object.keys(allScoreMap).forEach(stallId => {
+        const currentScore = getStallScore(stallId, currentPeriod);
+        if (currentScore > 0) periodViolatedCount++;
+        if (currentScore >= Number(STALL_RULES["屋台_停止点"])) dangerCount++;
+        else if (currentScore >= Number(STALL_RULES["屋台_注意点"])) warningCount++;
+      });
+
+      document.getElementById("stat-total-stalls-violated").innerText = periodViolatedCount;
+      document.getElementById("stat-warning-stalls").innerText = warningCount;
+      document.getElementById("stat-danger-stalls").innerText = dangerCount;
+
+      renderRankingTable(periodScoreMap, allScoreMap);
+      renderTimelineLogs();
+      lucide.createIcons();
+    }
+
+    // ランキングテーブル描画
+    function renderRankingTable(periodScoreMap, allScoreMap) {
+      const tbody = document.getElementById("stall-ranking-tbody");
+      if (!tbody) return;
+
+      const scoredStalls = Object.keys(allScoreMap).map(stallId => {
+        const plan = STALL_PLANS.find(p => p.stallId === stallId);
+        const area = AREAS.find(a => plan && a.id === plan.areaId);
+
+        const scoreDay12 = getStallScore(stallId, 'day1-2');
+        const scoreDay23 = getStallScore(stallId, 'day2-3');
+        const scoreDay34 = getStallScore(stallId, 'day3-4');
+        const totalScore = getStallScore(stallId, 'all');
+        const currentScore = getStallScore(stallId, currentPeriod);
+
+        return {
+          stallId: stallId,
+          badgeName: plan ? plan.badgeName : stallId,
+          orgNumber: plan ? plan.orgNumber : "",
+          areaName: area ? area.name : "",
+          orgName: plan ? plan.orgName : "出店団体",
+          menuText: plan ? plan.menuText : "",
+          currentScore: currentScore,
+          totalScore: totalScore,
+          scoreDay12: scoreDay12,
+          scoreDay23: scoreDay23,
+          scoreDay34: scoreDay34
+        };
+      });
+
+      // 選択中期間の点数順（同じ場合は全日累計順）でソート
+      scoredStalls.sort((a, b) => {
+        if (b.currentScore !== a.currentScore) {
+          return b.currentScore - a.currentScore;
+        }
+        return b.totalScore - a.totalScore;
+      });
+
+      if (scoredStalls.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-10 text-center text-slate-400 font-bold text-xs sm:text-sm bg-white">
+              現在、登録された違反・加点はありません（全屋台正常）
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = scoredStalls.map((s, idx) => {
+        let statusBadge = "";
+        let rankBadgeClass = "bg-white text-slate-700";
+        let rowClass = "hover:bg-white cursor-pointer transition bg-white";
+
+        if (s.currentScore >= Number(STALL_RULES["屋台_停止点"])) {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-crimson-600 text-white flex items-center gap-1 mx-auto w-fit"><i data-lucide="octagon-alert" class="w-3 h-3"></i>企画停止 (${s.currentScore}点)</span>`;
+          rankBadgeClass = "bg-crimson-600 text-white";
+          rowClass = "hover:bg-crimson-50/60 cursor-pointer transition bg-crimson-50/30";
+        } else if (s.currentScore >= Number(STALL_RULES["屋台_注意点"])) {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-crimson-100 text-crimson-900 border-2 border-crimson-400 flex items-center gap-1 mx-auto w-fit"><i data-lucide="alert-triangle" class="w-3 h-3 text-crimson-700"></i>注意 (${s.currentScore}点)</span>`;
+          rankBadgeClass = "bg-crimson-500 text-white";
+          rowClass = "hover:bg-crimson-50/70 cursor-pointer transition bg-crimson-50/30";
+        } else if (s.currentScore > 0) {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-white text-slate-700 border-2 border-navy-950">通常 (${s.currentScore}点)</span>`;
+        } else {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[10px] font-bold bg-white text-slate-500 border-2 border-navy-950">当期加点なし (全日${s.totalScore}点)</span>`;
+          rowClass = "hover:bg-white cursor-pointer transition bg-white opacity-80";
+        }
+
+        return `
+          <tr onclick="openStallDetailModal('${s.stallId}')" class="${rowClass} border-b-2 border-navy-950 group">
+            <td class="py-3 px-3.5 text-center">
+              <span class="w-6 h-6 rounded-[10px] inline-flex items-center justify-center text-xs font-black ${rankBadgeClass}">
+                ${idx + 1}
+              </span>
+            </td>
+            <td class="py-3 px-3.5">
+              <span class="gold-plate-badge text-[11px] font-black px-2 py-0.5 rounded-[10px] inline-block">
+                ${s.badgeName}
+              </span>
+              <span class="text-[11px] text-slate-500 font-bold block mt-0.5">${s.areaName}</span>
+            </td>
+            <td class="py-3 px-3.5 font-black text-navy-950 group-hover:text-crimson-700 transition">
+              <div class="leading-tight">${s.orgName}</div>
+              <div class="text-[10px] text-slate-400 font-bold mt-0.5 flex items-center gap-2">
+                <span>${s.menuText}</span>
+                <span class="text-slate-300">|</span>
+                <span class="text-navy-900 font-bold">内訳: ${stallPeriodLabel("day1-2")}(${s.scoreDay12}pt) / ${stallPeriodLabel("day2-3")}(${s.scoreDay23}pt) / ${stallPeriodLabel("day3-4")}(${s.scoreDay34}pt)</span>
+              </div>
+            </td>
+            <td class="py-3 px-3.5 text-center font-black">
+              <div class="text-base ${s.currentScore >= Number(STALL_RULES["屋台_停止点"]) ? 'text-crimson-700 font-black' : (s.currentScore >= Number(STALL_RULES["屋台_注意点"]) ? 'text-crimson-700 font-black' : 'text-navy-950')}">
+                ${s.currentScore} <span class="text-xs font-bold text-slate-500">点</span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-bold">全日: ${s.totalScore}pt</div>
+            </td>
+            <td class="py-3 px-3.5 text-center">${statusBadge}</td>
+            <td class="py-3 px text-center">
+              <span class="px-2 py-1 rounded-[10px] bg-navy-950 text-gold-300 text-[10px] font-black group-hover:bg-crimson-600 group-hover:text-white transition inline-flex items-center gap-0.5">
+                詳細 <i data-lucide="chevron-right" class="w-3 h-3"></i>
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      lucide.createIcons();
+    }
+
+    function openStallDetailModal(stallId) {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      playSound('tap');
+      const stallReports = reports.filter(r => isReportForStall(r, stallId));
+      if (stallReports.length === 0) return;
+
+      const first = stallReports[0];
+
+      // 各スライド期間の小計を個別に算出
+      const scoreCurrent = getStallScore(stallId, currentPeriod);
+      const scoreDay12 = getStallScore(stallId, 'day1-2');
+      const scoreDay23 = getStallScore(stallId, 'day2-3');
+      const scoreDay34 = getStallScore(stallId, 'day3-4');
+      const scoreAll = getStallScore(stallId, 'all');
+
+      // 基本情報
+      document.getElementById("modal-detail-stall-badge").innerText = first.badgeName;
+      document.getElementById("modal-detail-area").innerText = first.areaName;
+      document.getElementById("modal-detail-org-name").innerText = `${first.orgName} (${first.menuText || '出店企画'})`;
+
+      // 選択中期間の小計を明示
+      const periodLabelMap = {
+        'day1-2': "1日目+2日目 小計",
+        'day2-3': "2日目+3日目 小計",
+        'day3-4': "3日目+4日目 小計",
+        'all': "全日総計"
+      };
+      document.getElementById("modal-detail-period-title").innerText = `${stallPeriodLabel(currentPeriod)}`;
+      document.getElementById("modal-detail-total-score").innerText = `${scoreCurrent} 点`;
+
+      // 4期間のミニ小計ボックスを更新
+      document.getElementById("modal-score-day1-2").innerText = `${scoreDay12}pt`;
+      document.getElementById("modal-score-day2-3").innerText = `${scoreDay23}pt`;
+      document.getElementById("modal-score-day3-4").innerText = `${scoreDay34}pt`;
+      document.getElementById("modal-score-all").innerText = `${scoreAll}pt`;
+
+      // 選択中の期間ボックスをハイライト
+      ['day1-2', 'day2-3', 'day3-4', 'all'].forEach(k => {
+        const box = document.getElementById(`modal-box-${k}`);
+        if (!box) return;
+        if (k === currentPeriod) {
+          box.className = "p-2 rounded-[10px] border-2 border-navy-950 bg-gold-50/70 flex flex-col justify-between";
+        } else {
+          box.className = "p-2 rounded-[10px] border-2 border-navy-950 bg-white flex flex-col justify-between";
+        }
+      });
+
+      const statusContainer = document.getElementById("modal-detail-status-pill");
+      const iconBox = document.getElementById("modal-detail-badge-icon");
+
+      if (scoreCurrent >= Number(STALL_RULES["屋台_停止点"])) {
+        iconBox.className = "w-11 h-11 rounded-[10px] bg-crimson-600 text-white flex items-center justify-center flex-shrink-0";
+        statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-600 text-white flex items-center gap-1"><i data-lucide="octagon-alert" class="w-3.5 h-3.5"></i> 企画停止 (${STALL_RULES["屋台_停止点"]}点到達)</span>`;
+      } else if (scoreCurrent >= Number(STALL_RULES["屋台_注意点"])) {
+        iconBox.className = "w-11 h-11 rounded-[10px] bg-crimson-500 text-white flex items-center justify-center flex-shrink-0";
+        statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-100 text-crimson-900 border-2 border-crimson-400 flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-crimson-700"></i> 注意 (${STALL_RULES["屋台_注意点"]}点到達)</span>`;
+      } else {
+        iconBox.className = "w-11 h-11 rounded-[10px] bg-navy-950 text-gold-400 border-2 border-navy-950 flex items-center justify-center flex-shrink-0";
+        statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black bg-slate-200 text-slate-700">${scoreCurrent}点</span>`;
+      }
+
+      // 履歴一覧
+      const listEl = document.getElementById("modal-detail-list");
+      listEl.innerHTML = stallReports.map((item, idx) => `
+        <div class="p-3.5 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 transition space-y-2">
+          <div class="flex items-center justify-between flex-wrap gap-1">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-300 flex items-center justify-center font-black text-xs">
+                +${item.points}pt
+              </span>
+              <h4 class="text-xs sm:text-sm font-black text-navy-950">${item.violationName}</h4>
+            </div>
+            <span class="text-[11px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded-[10px]">
+              ${item.dateLabel || item.date} ${item.timestamp}
+            </span>
+          </div>
+
+          ${item.memo ? `
+            <div class="text-xs bg-white p-2.5 rounded-[10px] border-2 border-navy-950 font-medium text-slate-700">
+              <span class="font-bold text-navy-950">状況メモ:</span> ${item.memo}
+            </div>
+          ` : ''}
+
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t-2 border-navy-950 font-bold">
+            <span>報告者: <strong class="text-navy-950">${item.reporter}</strong></span>
+            <span class="text-slate-400 text-[10px]">ID: ${item.id}</span>
+          </div>
+        </div>
+      `).join("");
+
+      document.getElementById("stall-detail-modal").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeStallDetailModal() {
+      document.getElementById("stall-detail-modal").classList.add("hidden");
+    }
+
+    function renderTimelineLogs() {
+      const container = document.getElementById("recent-logs-container");
+      if (reports.length === 0) {
+        container.innerHTML = `
+          <div class="py-8 text-center text-slate-400 text-xs font-bold">
+            まだ報告履歴はありません
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = reports.slice(0, 10).map(r => `
+        <div class="p-3.5 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="flex items-start gap-3">
+            <span class="w-9 h-9 rounded-[10px] bg-crimson-50 text-crimson-700 border-2 border-crimson-200 flex items-center justify-center font-black text-xs flex-shrink-0 mt-0.5">
+              ${getHqPass() ? `+${r.points}pt` : ""}
+            </span>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="gold-plate-badge text-[10px] font-black px-1.5 py-0.2 rounded-[10px]">
+                  ${r.badgeName}
+                </span>
+                <span class="text-xs font-black text-navy-950">${r.orgName}</span>
+                <span class="text-[10px] font-bold text-slate-400">(${r.areaName} / ${r.dateLabel})</span>
+              </div>
+              <h4 class="text-xs font-bold text-crimson-700 mt-1">${r.violationName}</h4>
+              ${r.memo ? `<p class="text-[11px] text-slate-500 mt-0.5 bg-white px-2 py-1 rounded-[10px]">メモ: ${r.memo}</p>` : ''}
+            </div>
+          </div>
+          <div class="text-right text-[10px] text-slate-400 font-bold flex-shrink-0 sm:border-l sm:pl-3 border-navy-950">
+            <span>${r.timestamp}</span>
+            <span class="block text-slate-700 font-black mt-0.5">報告者: ${r.reporter}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function switchMainTab(tab) {
+      if (tab !== "report" && !getHqPass()) { requestHqLogin(); return; }
+      playSound('tap');
+      const viewReport = document.getElementById("view-report-flow");
+      const viewDashboard = document.getElementById("view-dashboard");
+      const btnReport = document.getElementById("tab-btn-report");
+      const btnDashboard = document.getElementById("tab-btn-dashboard");
+
+      if (tab === 'report') {
+        viewReport.classList.remove("hidden");
+        viewDashboard.classList.add("hidden");
+        btnReport.className = "flex-1 sm:flex-none justify-center px-3 sm:px-4 py-1.5 rounded-[10px] bg-navy-950 text-gold-300 flex items-center gap-1.5 transition";
+        btnDashboard.className = "flex-1 sm:flex-none justify-center px-3 sm:px-4 py-1.5 rounded-[10px] text-navy-950 hover:bg-gold-100 flex items-center gap-1.5 transition";
+      } else {
+        viewReport.classList.add("hidden");
+        viewDashboard.classList.remove("hidden");
+        btnReport.className = "flex-1 sm:flex-none justify-center px-3 sm:px-4 py-1.5 rounded-[10px] text-navy-950 hover:bg-gold-100 flex items-center gap-1.5 transition";
+        btnDashboard.className = "flex-1 sm:flex-none justify-center px-3 sm:px-4 py-1.5 rounded-[10px] bg-navy-950 text-gold-300 flex items-center gap-1.5 transition";
+        updateDashboardStats();
+      }
+    }
+
+    function exportReportsCSV() {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      if (reports.length === 0) {
+        showToast("出力可能な報告データがありません");
+        return;
+      }
+
+      let csv = "\uFEFF日時,日付,エリア,地割番号,団体番号,団体名,商品名,違反項目,点数,報告者,メモ\n";
+      reports.forEach(r => {
+        csv += `"${r.createdAt}","${r.dateLabel}","${r.areaName}","${r.badgeName}","${r.orgNumber}","${r.orgName}","${r.menuText}","${r.violationName}","${r.points}","${r.reporter}","${r.memo}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `法政祭_屋台違反点数報告集計_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function confirmResetAllReports() {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      document.getElementById("reset-confirm-modal").classList.remove("hidden");
+    }
+
+    function closeResetModal() {
+      document.getElementById("reset-confirm-modal").classList.add("hidden");
+    }
+
+    async function executeResetAllReports() {
+      if (!getHqPass()) { closeResetModal(); requestHqLogin(); return; }
+      if (resettingReports) return;
+      if (isSendingOutbox || outboxReadError) {
+        showToast("送信中または端末保存の確認が必要です。完了してから初期化してください。"); return;
+      }
+      resettingReports = true;
+      syncGeneration++;
+      try {
+        if (!await resetCloudData()) return;
+        // サーバーの退避・初期化成功後にだけ、端末の報告とキューを消す。
+        localStorage.setItem(STORAGE_KEY, "[]");
+        if (!saveOutbox([])) throw new Error("Outbox storage failed");
+        reports = [];
+        lastSubmittedIds = [];
+        rejectedOutboxIds.clear();
+        rejectedReasons.clear();
+        updateOutboxStatusUI();
+        updateDashboardStats();
+        if (wizardState.areaId) renderStallList();
+        closeResetModal();
+        playSound('success');
+        showToast("クラウドへ退避し、報告データを初期化しました");
+      } catch (e) {
+        showToast("初期化を完了できませんでした。接続と端末保存を確認してください。再送信はしていません。");
+      } finally { resettingReports = false; }
+    }
+
+    // ----------------------------------------------------
+    // INITIALIZATION
+    // ----------------------------------------------------
+    window.addEventListener("online", () => postReportsToCloud());
+
+    window.onload = function() {
+      initStorageAndSync();
+      renderAreaGrid();
+
+      // セッション/ローカル認証済みの場合は開錠状態を復元
+      if (isPeriodUnlocked) {
+        const banner = document.getElementById("dashboard-locked-banner");
+        if (banner) banner.classList.add("hidden");
+        document.querySelectorAll(".period-lock-icon").forEach(icon => {
+          icon.setAttribute("data-lucide", "lock-open");
+          icon.classList.add("text-emerald-400");
+        });
+      }
+
+      updateDashboardStats();
+      lucide.createIcons();
+
+      setInterval(() => {
+        if (cloudApiUrl) syncWithCloud(false);
+      }, 30000);
+    };
+  </script>
+</body>
+</html>
