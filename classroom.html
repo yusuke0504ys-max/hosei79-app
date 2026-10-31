@@ -61,6 +61,26 @@
     }
 
 
+
+    /* スマホ幅では本部集計の表を1団体1枚のカードにする */
+    @media (max-width: 639px) {
+      .rank-table thead { display: none; }
+      .rank-table, .rank-table tbody { display: block; }
+      .rank-table tr { display: grid; column-gap: 0.6rem; row-gap: 0.35rem; padding: 0.75rem; align-items: center; }
+      .rank-table td { padding: 0 !important; text-align: left; }
+      .rank-table td[colspan] { grid-column: 1 / -1; text-align: center; }
+      .rank-table td:nth-child(1) { grid-area: rank; align-self: start; }
+      .rank-table tr { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "rank place points" "rank org stops" "rank status detail"; }
+      .rank-table td:nth-child(2) { grid-area: place; }
+      .rank-table td:nth-child(2) > span { display: inline-block; margin: 0 0.4rem 0 0; }
+      .rank-table td:nth-child(3) { grid-area: org; }
+      .rank-table td:nth-child(4) { grid-area: points; text-align: right; }
+      .rank-table td:nth-child(5) { grid-area: stops; text-align: right; font-size: 11px; }
+      .rank-table td:nth-child(5)::before { content: "停止 "; font-weight: 700; color: #64748b; }
+      .rank-table td:nth-child(6) { grid-area: status; white-space: normal; }
+      .rank-table td:nth-child(6) > span:first-child { margin: 0; }
+      .rank-table td:nth-child(7) { grid-area: detail; text-align: right; }
+    }
   </style>
 </head>
 <body class="bg-white text-navy-950 min-h-screen flex flex-col antialiased selection:bg-crimson-600 selection:text-white">
@@ -231,15 +251,15 @@
 
       <!-- STEP 4: 違反項目を選択＆報告確定（複数選択可能） -->
       <section id="step-card-violation" class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950 transition-all opacity-50 pointer-events-none">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-start justify-between gap-2 mb-4">
           <div>
             <h2 class="text-base sm:text-lg font-black text-navy-950 flex items-center gap-2">
-              <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm">4</span>
+              <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm flex-shrink-0">4</span>
               違反項目を選択・報告（複数選択可）
             </h2>
             <p class="text-xs text-slate-500 mt-0.5">違反を選んで、名前を書いて登録（複数可）</p>
           </div>
-          <span class="text-xs font-bold text-navy-900 bg-gold-100 border-2 border-navy-950 px-2.5 py-1 rounded-[10px] flex items-center gap-1">
+          <span class="text-xs font-bold text-navy-900 bg-gold-100 border-2 border-navy-950 px-2.5 py-1 rounded-[10px] hidden sm:flex items-center gap-1 whitespace-nowrap flex-shrink-0">
             <i data-lucide="check-square" class="w-3.5 h-3.5 text-gold-700"></i> 複数選択OK
           </span>
         </div>
@@ -434,7 +454,7 @@
         </div>
 
         <div class="overflow-x-auto rounded-[10px] border-2 border-navy-950">
-          <table class="w-full text-left text-xs">
+          <table class="rank-table w-full text-left text-xs">
             <thead>
               <tr class="bg-navy-950 text-gold-300 font-black border-b-2 border-navy-950">
                 <th class="py-3 px-3.5 text-center w-14">順位</th>
@@ -487,9 +507,9 @@
           <span class="text-slate-400 font-bold">対象教室・団体</span>
           <span id="modal-info-org" class="font-black text-navy-950 truncate max-w-[200px]">--</span>
         </div>
-        <div class="flex justify-between items-start">
+        <div class="flex justify-between items-start gap-3">
           <span class="text-slate-400 font-bold flex-shrink-0">報告項目</span>
-          <div id="modal-info-violation-list" class="font-bold text-crimson-700 text-right space-y-1">--</div>
+          <div id="modal-info-violation-list" class="flex-1 font-bold text-crimson-700 text-left space-y-1 min-w-0">--</div>
         </div>
       </div>
 
@@ -797,22 +817,37 @@
       return report.voided === true || String(report.voided).toUpperCase() === "TRUE";
     }
 
-    window.judgeClassroom = function(reports, items, rules) {
+    // now（ms）を渡すと、その日が今日なら「今この時点」の状態を出す。渡さなければ各日の終わりの状態。
+    // 本部操作（違反IDが HQ- で始まる行）: 停止は停止回数に数える。再開はその時点でかかっている停止・中止を解く。
+    window.judgeClassroom = function(reports, items, rules, now) {
       const dates = classroomDates(rules);
       const threshold = Number(rules["教室_停止点"]);
       const stopLimit = Number(rules["教室_中止までの停止回数"]);
       const byItem = new Map(items.map(item => [item.id, item]));
       const result = Object.create(null);
       const running = Object.create(null);
+      const fullDates = String(rules["開催日"] || "").split(",").map(d => d.trim());
+      const dayRange = date => {
+        const full = fullDates.find(d => classroomDateKey(d) === date) || "";
+        const y = Number(full.slice(0, 4)) || new Date().getFullYear();
+        const [m, d] = date.split("-").map(Number);
+        return [new Date(y, m - 1, d).getTime(), new Date(y, m - 1, d + 1).getTime()];
+      };
       const time = report => {
         const value = report.createdAt || report.timestamp;
         const parsed = Date.parse(value);
         if (Number.isFinite(parsed)) return parsed;
         // 旧形式の timestamp は時刻だけ。開催年・報告日と組み合わせる。
-        const fullDate = String(rules["開催日"] || "").split(",").find(d => classroomDateKey(d.trim()) === classroomDateKey(report.date));
+        const fullDate = fullDates.find(d => classroomDateKey(d) === classroomDateKey(report.date));
         const fallback = Date.parse(`${(fullDate || "").trim()}T${report.timestamp || "00:00"}`);
         return Number.isFinite(fallback) ? fallback : 0;
       };
+      const parseUntil = value => {
+        if (value === null || value === undefined || value === "") return null;
+        const t = Date.parse(String(value));
+        return Number.isFinite(t) ? t : null;
+      };
+      const active = (list, T) => list.filter(s => s.start <= T && (s.end === null || s.end > T));
       const ordered = reports.filter(r => !isVoided(r)).slice().sort((a, b) => time(a) - time(b));
 
       ordered.forEach(report => {
@@ -822,12 +857,39 @@
         if (!result[roomId]) {
           result[roomId] = {
             dayTotal: Object.fromEntries(dates.map(d => [d, 0])),
-            stops: [], stopCount: 0, cancelled: null,
-            status: Object.fromEntries(dates.map(d => [d, "通常"]))
+            stops: [], stopCount: 0, cancelled: null, cancels: [],
+            status: Object.fromEntries(dates.map(d => [d, "通常"])),
+            note: Object.fromEntries(dates.map(d => [d, ""]))
           };
           running[roomId] = Object.fromEntries(dates.map(d => [d, 0]));
         }
         const room = result[roomId];
+        const [dayStart, dayEnd] = dayRange(date);
+        // 報告の日付と登録時刻がずれていても、その報告の日の中の出来事として扱う
+        const at = Math.min(Math.max(time(report), dayStart), dayEnd - 1);
+        const addCancel = (reason) => {
+          if (!active(room.cancels, at).length) room.cancels.push({ date, start: at, end: null, reason, reportId: report.id });
+        };
+        const addStop = (kind, end, manual) => {
+          room.stops.push({ date, kind, start: at, end, manual, reportId: report.id });
+          room.stopCount++;
+          running[roomId][date] = 0;
+          if (stopLimit > 0 && room.stopCount >= stopLimit) addCancel(`停止${stopLimit}回`);
+        };
+
+        if (/^HQ-/.test(String(report.violationId || ""))) {
+          if (report.violationId === "HQ-STOP") {
+            const until = parseUntil(report.until);
+            const kind = until === null || until > dayEnd ? "全日停止" : until >= dayEnd - 60000 ? "当日停止" : "企画停止";
+            addStop(kind, until, true);
+          } else if (report.violationId === "HQ-CANCEL") {
+            addCancel("本部判断");
+          } else if (report.violationId === "HQ-RESUME") {
+            active([...room.stops, ...room.cancels], at).forEach(s => { s.end = at; });
+          }
+          return;
+        }
+
         const penalty = report.penalty || (byItem.get(report.violationId) || {}).penalty || "通常";
         if (penalty === "記録のみ") return;
         // 点数が無い旧報告を現在の設定で推定し直さない。
@@ -835,31 +897,35 @@
         const savedPoints = Number.isFinite(points) ? points : 0;
         room.dayTotal[date] += savedPoints;
 
-        let kind = null;
         if (penalty === "即中止") {
-          if (!room.cancelled) room.cancelled = { date, reason: "即中止", reportId: report.id };
-        } else if (penalty === "当日停止" || penalty === "全日停止") {
-          kind = penalty;
+          addCancel("即中止");
+        } else if (penalty === "当日停止") {
+          addStop("当日停止", dayEnd, false);
+        } else if (penalty === "全日停止") {
+          addStop("全日停止", null, false);
         } else if (penalty === "通常") {
           running[roomId][date] += savedPoints;
-          if (threshold > 0 && running[roomId][date] >= threshold) kind = "10点停止";
-        }
-        if (kind) {
-          room.stops.push({ date, kind, reportId: report.id });
-          room.stopCount++;
-          running[roomId][date] = 0;
-          if (!room.cancelled && stopLimit > 0 && room.stopCount >= stopLimit) {
-            room.cancelled = { date, reason: `停止${stopLimit}回`, reportId: report.id };
-          }
+          // 点数による停止は本部が「再開」するまで（最長でその日の終わりまで）
+          if (threshold > 0 && running[roomId][date] >= threshold) addStop("10点停止", dayEnd, false);
         }
       });
 
-      Object.values(result).forEach(room => dates.forEach(date => {
-        room.status[date] = room.cancelled && room.cancelled.date <= date ? "企画中止"
-          : room.stops.some(s => s.kind === "全日停止" && s.date <= date) ? "全日停止"
-          : room.stops.some(s => s.kind === "当日停止" && s.date === date) ? "当日停止"
-          : room.stops.some(s => s.kind === "10点停止" && s.date === date) ? "企画停止" : "通常";
-      }));
+      const ORDER = { "企画停止": 1, "当日停止": 2, "全日停止": 3 };
+      const label = s => s.kind === "10点停止" ? "企画停止" : s.kind;
+      Object.values(result).forEach(room => {
+        room.cancelled = room.cancels.find(c => c.end === null) || null;
+        dates.forEach(date => {
+          const [dayStart, dayEnd] = dayRange(date);
+          const T = Number.isFinite(now) && now >= dayStart && now < dayEnd ? now : dayEnd - 1;
+          if (active(room.cancels, T).length) { room.status[date] = "企画中止"; return; }
+          const stops = active(room.stops, T).sort((a, b) => ORDER[label(b)] - ORDER[label(a)]);
+          if (!stops.length) return;
+          const top = stops[0];
+          room.status[date] = label(top);
+          if (top.manual) room.note[date] = top.end === null ? "残り全日" : hqFormatUntil(top.end, T);
+          else if (top.kind === "10点停止" && T === now) room.note[date] = "再開待ち";
+        });
+      });
       return result;
     };
 
@@ -1462,8 +1528,12 @@
         return;
       }
 
+      const judgedNow = window.judgeClassroom(reports, VIOLATIONS, CLASSROOM_RULES, Date.now());
       container.innerHTML = availableRooms.map(r => {
         const isSelected = wizardState.roomId === r.roomId;
+        const roomState = judgedNow[r.roomId];
+        const roomStatus = roomState ? roomState.status[wizardState.date] : "通常";
+        const roomNote = roomState ? roomState.note[wizardState.date] : "";
 
         const cardStyle = isSelected
           ? "border-navy-950 bg-white "
@@ -1479,6 +1549,7 @@
                   <i data-lucide="map-pin" class="w-3 h-3 text-crimson-800"></i>
                   ${r.roomName}
                 </span>
+                ${roomStatus !== "通常" ? hqStateBadge(roomStatus === "企画中止" ? "企画中止" : `停止中${roomNote ? "（" + roomNote + "）" : ""}`, roomStatus === "企画中止") : ""}
               </div>
               <h4 class="text-xs sm:text-sm font-black text-navy-950 leading-snug group-hover:text-crimson-600 transition">
                 ${r.orgName}
@@ -1847,7 +1918,7 @@
 
     function updateDashboardStats() {
       const date = dashboardDate();
-      const judged = window.judgeClassroom(reports, VIOLATIONS, CLASSROOM_RULES);
+      const judged = window.judgeClassroom(reports, VIOLATIONS, CLASSROOM_RULES, Date.now());
       const rooms = Object.values(judged);
       document.getElementById("stat-total-reports").innerText = rooms.reduce((sum, r) => sum + r.dayTotal[date], 0);
       document.getElementById("badge-total-reports-count").innerText = reports.length;
@@ -1873,6 +1944,7 @@
         return { ...plan, buildingName: plan.buildingName || (building ? building.name : ""),
           points: room ? room.dayTotal[date] : 0,
           status: room ? room.status[date] : "通常",
+          note: room ? room.note[date] : "",
           stopCount: room ? room.stops.filter(s => s.date <= date).length : 0 };
       });
       roomStats.sort((a, b) => CLASSROOM_STATUS_ORDER[b.status] - CLASSROOM_STATUS_ORDER[a.status]
@@ -1881,11 +1953,11 @@
       tbody.innerHTML = roomStats.map((room, index) => `
         <tr data-room-id="${escapeHTML(room.roomId)}" class="border-b-2 border-navy-950 cursor-pointer ${room.status === '通常' ? 'bg-white hover:bg-white' : 'bg-crimson-50 hover:bg-crimson-100'}">
           <td class="py-3 px-3.5 text-center font-black">${index + 1}</td>
-          <td class="py-3 px-3.5"><span class="gold-plate-badge px-2 py-0.5 rounded-[10px] font-black">${escapeHTML(room.roomName)}</span><span class="block text-slate-500 mt-1">${escapeHTML(room.buildingName)}</span></td>
+          <td class="py-3 px-3.5"><span class="gold-plate-badge px-2 py-0.5 rounded-[10px] font-black whitespace-nowrap">${escapeHTML(room.roomName)}</span><span class="block text-slate-500 mt-1">${escapeHTML(room.buildingName)}</span></td>
           <td class="py-3 px-3.5 font-black text-navy-950">${escapeHTML(room.orgName)}</td>
           <td class="py-3 px-3.5 text-center font-black text-base">${room.points} <span class="text-xs">点</span></td>
           <td class="py-3 px-3.5 text-center font-black">${room.stopCount} 回</td>
-          <td class="py-3 px-3.5 text-center whitespace-nowrap">${classroomStatusBadge(room.status)}</td>
+          <td class="py-3 px-3.5 text-center whitespace-nowrap">${classroomStatusBadge(room.status)}${room.note ? `<span class="block text-[10px] font-bold text-crimson-700 mt-1">${escapeHTML(room.note)}</span>` : ""}</td>
           <td class="py-3 px-3 text-center"><span class="text-navy-950 font-bold">詳細</span></td>
         </tr>
       `).join("");
@@ -1901,24 +1973,25 @@
       if (!first) return;
       const count = orgReports.length;
       const date = dashboardDate();
-      const room = window.judgeClassroom(reports, VIOLATIONS, CLASSROOM_RULES)[roomId];
+      const room = window.judgeClassroom(reports, VIOLATIONS, CLASSROOM_RULES, Date.now())[roomId];
       const building = BUILDINGS.find(b => b.id === first.buildingId);
       document.getElementById("modal-detail-room-badge").innerText = first.roomName;
       document.getElementById("modal-detail-building").innerText = first.buildingName || (building ? building.name : "");
       document.getElementById("modal-detail-org-name").innerText = first.orgName;
       document.getElementById("modal-detail-total-count").innerText = `${date.replace("-", "/")}：${room ? room.dayTotal[date] : 0} 点`;
       document.getElementById("modal-detail-status-pill").innerHTML = classroomStatusBadge(room ? room.status[date] : "通常")
+        + (room && room.note[date] ? `<span class="block mt-1 text-xs font-black text-crimson-700">${escapeHTML(room.note[date])}</span>` : "")
         + `<span class="block mt-1 text-xs font-bold">停止 ${room ? room.stops.filter(s => s.date <= date).length : 0} 回（選択日まで）</span>`;
 
       const listEl = document.getElementById("modal-detail-list");
-      listEl.innerHTML = orgReports.map((item, idx) => `
+      listEl.innerHTML = hqPanelHTML(roomId) + orgReports.map((item, idx) => `
         <div class="p-3.5 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 transition space-y-2">
           <div class="flex items-center justify-between flex-wrap gap-1">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="w-5 h-5 rounded-[10px] bg-navy-950 text-gold-300 flex items-center justify-center font-black text-[10px]">
                 #${count - idx}
               </span>
-              <span class="text-xs font-black text-crimson-700 bg-crimson-50 border-2 border-crimson-200 px-2 py-0.5 rounded-[10px]">
+              <span class="text-xs font-black text-crimson-700 bg-crimson-50 border-2 border-crimson-200 px-2 py-0.5 rounded-[10px] whitespace-nowrap">
                 ${escapeHTML(item.category)}${isVoided(item) ? "・取消" : ""} / ${escapeHTML(item.points ?? "未記録")}点 / ${escapeHTML(item.penalty || "")}
               </span>
               <h4 class="text-xs sm:text-sm font-black text-navy-950">${item.violationName}</h4>
@@ -2086,6 +2159,287 @@
         }
       }, 30000);
     };
+  </script>
+  <script>
+    // 本部操作の教室用のつなぎ
+    function hqAdapter() {
+      const planOf = key => ROOM_PLANS.find(p => p.roomId === key) || reports.find(r => r.roomId === key) || { roomId: key, roomName: key, orgName: "" };
+      return {
+        matches: (r, key) => r.roomId === key,
+        keyOf: r => r.roomId,
+        fallbackDate: () => dashboardDate(),
+        stopNote: "停止回数に1回数えます（停止2回で企画中止）。誤りなら記録の「取り消す」で戻せます。",
+        info: key => {
+          const p = planOf(key);
+          const b = BUILDINGS.find(x => x.id === p.buildingId);
+          const buildingName = p.buildingName || (b ? b.name : "");
+          return { label: `${p.roomName}（${buildingName}）`, orgName: p.orgName,
+            fields: { buildingId: p.buildingId || "", buildingName, roomId: p.roomId, roomName: p.roomName, orgName: p.orgName } };
+        },
+        state: key => {
+          const room = window.judgeClassroom(reports, VIOLATIONS, CLASSROOM_RULES, Date.now())[key];
+          const todayKey = hqDateKeyOf(Date.now());
+          const date = classroomDates(CLASSROOM_RULES).includes(todayKey) ? todayKey : dashboardDate();
+          if (!room) return { text: "通常" };
+          return { text: room.status[date] + (room.note[date] ? `（${room.note[date]}）` : "") };
+        },
+        refresh: key => {
+          updateDashboardStats();
+          if (!document.getElementById("org-detail-modal").classList.contains("hidden")) openOrgDetailModal(key);
+        }
+      };
+    }
+  </script>
+  <script>
+    // ----------------------------------------------------
+    // 本部操作（停止・中止・再開）  ※教室・屋台で同じコード。tools/hq-actions.js が元
+    // 操作は報告と同じシートに「HQ-」で始まる違反IDの行として残す（合言葉つきの action=hq）。
+    // 取り消しは既存の void（取消）を使う。
+    // ----------------------------------------------------
+    const HQ_STOP_LENGTHS = [
+      ["h1", "1時間"], ["h2", "2時間"], ["h3", "3時間"], ["h4", "4時間"], ["h6", "6時間"],
+      ["today", "今日いっぱい"], ["d2", "明日いっぱいまで（2日間）"], ["d3", "3日間"], ["all", "残り全日"]
+    ];
+    const HQ_ACTION_LABEL = { "HQ-STOP": "停止", "HQ-CANCEL": "中止", "HQ-RESUME": "再開" };
+    const HQ_PENALTY = { "HQ-STOP": "本部停止", "HQ-CANCEL": "本部中止", "HQ-RESUME": "本部再開" };
+    let hqActionTarget = null;
+    let hqSending = false;
+
+    function isHqAction(r) { return !!r && /^HQ-/.test(String(r.violationId || "")); }
+    function hqIsVoided(r) { return r.voided === true || String(r.voided).toUpperCase() === "TRUE"; }
+    function hqRules() { return APP_TYPE === "classroom" ? CLASSROOM_RULES : STALL_RULES; }
+    function hqPad(n) { return String(n).padStart(2, "0"); }
+    function hqDateKeyOf(ms) { const d = new Date(ms); return `${hqPad(d.getMonth() + 1)}-${hqPad(d.getDate())}`; }
+    function hqLocalIso(ms) {
+      const d = new Date(ms);
+      return `${d.getFullYear()}-${hqPad(d.getMonth() + 1)}-${hqPad(d.getDate())}T${hqPad(d.getHours())}:${hqPad(d.getMinutes())}:00`;
+    }
+    function hqParseTime(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const t = Date.parse(String(value));
+      return Number.isFinite(t) ? t : null;
+    }
+
+    // 開催日（例 "10-31"）の 0時〜24時 を端末の時刻で返す
+    function hqDayRange(dateKey, rules) {
+      const full = String((rules || hqRules())["開催日"] || "").split(",").map(s => s.trim()).find(s => s.slice(-5) === dateKey);
+      const year = full ? Number(full.slice(0, 4)) : new Date().getFullYear();
+      const [m, d] = String(dateKey).split("-").map(Number);
+      const start = new Date(year, (m || 1) - 1, d || 1).getTime();
+      return [start, new Date(year, (m || 1) - 1, (d || 1) + 1).getTime()];
+    }
+
+    function hqFestivalKeys(rules) {
+      return String((rules || hqRules())["開催日"] || "").split(",").map(s => s.trim().slice(-5)).filter(Boolean).sort();
+    }
+
+    // 停止の長さ → 期限（ms）。残り全日は null
+    function hqUntilFor(lengthKey, now) {
+      const hours = String(lengthKey).match(/^h(\d+)$/);
+      if (hours) return now + Number(hours[1]) * 3600000;
+      if (lengthKey === "all") return null;
+      const days = lengthKey === "today" ? 1 : Number(String(lengthKey).slice(1)) || 1;
+      const d = new Date(now);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days).getTime();
+    }
+
+    function hqFormatUntil(until, refMs) {
+      if (until === null || until === undefined) return "残り全日";
+      const d = new Date(until);
+      const midnight = d.getHours() === 0 && d.getMinutes() === 0;
+      if (midnight) {
+        const last = new Date(until - 1);
+        return hqDateKeyOf(until - 1) === hqDateKeyOf(refMs) ? "今日いっぱい" : `${last.getMonth() + 1}/${last.getDate()}いっぱい`;
+      }
+      const hm = `${hqPad(d.getHours())}:${hqPad(d.getMinutes())}`;
+      return hqDateKeyOf(until) === hqDateKeyOf(refMs) ? `${hm}まで` : `${d.getMonth() + 1}/${d.getDate()} ${hm}まで`;
+    }
+
+    // 本部操作だけで決まる流れ（屋台用。教室は judgeClassroom の中で同じ考え方で数える）
+    function hqTimeline(rows) {
+      const stops = [], cancels = [], resumes = [];
+      rows.filter(r => isHqAction(r) && !hqIsVoided(r))
+        .map(r => ({ r, t: hqParseTime(r.createdAt) ?? 0 }))
+        .sort((a, b) => a.t - b.t)
+        .forEach(({ r, t }) => {
+          if (r.violationId === "HQ-STOP") stops.push({ start: t, end: hqParseTime(r.until), reportId: r.id, manual: true });
+          else if (r.violationId === "HQ-CANCEL") cancels.push({ start: t, end: null, reportId: r.id, reason: "本部判断" });
+          else if (r.violationId === "HQ-RESUME") {
+            resumes.push(t);
+            [...stops, ...cancels].forEach(s => { if (s.start <= t && (s.end === null || s.end > t)) s.end = t; });
+          }
+        });
+      return { stops, cancels, resumes };
+    }
+
+    function hqActiveAt(list, T) { return list.filter(s => s.start <= T && (s.end === null || s.end > T)); }
+
+    // ---------- 画面 ----------
+    function hqStateBadge(text, strong) {
+      if (!text) return "";
+      return `<span class="inline-block px-2 py-0.5 rounded-[10px] text-[10px] font-black border-2 ${strong ? "bg-crimson-700 text-white border-crimson-900" : "bg-crimson-100 text-crimson-900 border-crimson-500"}">${escapeHqText(text)}</span>`;
+    }
+    function escapeHqText(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+
+    // 詳細モーダルの上に出す操作パネル
+    function hqPanelHTML(key) {
+      const state = hqAdapter().state(key);
+      const rows = reports.filter(r => isHqAction(r) && hqAdapter().matches(r, key));
+      const history = rows.map(r => `
+        <div class="flex items-center justify-between gap-2 text-[11px] font-bold py-1 border-t border-navy-950/20 ${hqIsVoided(r) ? "line-through text-slate-400" : "text-navy-950"}">
+          <span>${escapeHqText(r.dateLabel || r.date)} ${escapeHqText(r.timestamp)}　${escapeHqText(r.violationName)}${r.memo ? `（${escapeHqText(r.memo)}）` : ""}</span>
+          ${hqIsVoided(r) ? `<span>取消済</span>` : `<button type="button" onclick="undoHqAction('${escapeHqText(r.id)}')" class="px-2 py-0.5 rounded-[10px] border-2 border-navy-950 bg-white text-navy-950 text-[10px] font-black flex-shrink-0">取り消す</button>`}
+        </div>`).join("");
+      return `
+        <div class="p-3.5 rounded-[10px] border-2 border-navy-950 bg-gold-50/70 space-y-2">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="text-xs font-black text-navy-950">本部操作　<span class="text-crimson-700">いま: ${escapeHqText(state.text)}</span></span>
+            <div class="flex gap-1.5 flex-wrap">
+              <button type="button" onclick="openHqActionModal('${escapeHqText(key)}','HQ-STOP')" class="px-3 py-1.5 rounded-[10px] border-2 border-navy-950 bg-crimson-600 text-white text-xs font-black">停止する</button>
+              <button type="button" onclick="openHqActionModal('${escapeHqText(key)}','HQ-CANCEL')" class="px-3 py-1.5 rounded-[10px] border-2 border-navy-950 bg-crimson-800 text-white text-xs font-black">中止にする</button>
+              <button type="button" onclick="openHqActionModal('${escapeHqText(key)}','HQ-RESUME')" class="px-3 py-1.5 rounded-[10px] border-2 border-navy-950 bg-white text-navy-950 text-xs font-black">再開する</button>
+            </div>
+          </div>
+          ${history ? `<div>${history}</div>` : `<p class="text-[11px] font-bold text-slate-500">本部操作の記録はまだありません</p>`}
+        </div>`;
+    }
+
+    function ensureHqModal() {
+      if (document.getElementById("hq-action-modal")) return;
+      const wrap = document.createElement("div");
+      wrap.id = "hq-action-modal";
+      wrap.className = "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-navy-950/80 hidden";
+      wrap.innerHTML = `
+        <div class="bg-white border-2 border-navy-950 rounded-[10px] w-full max-w-md p-5 space-y-4">
+          <h3 id="hq-action-title" class="text-base font-black text-navy-950"></h3>
+          <p id="hq-action-target" class="text-xs font-bold text-slate-600"></p>
+          <div id="hq-action-length-box">
+            <label for="hq-action-length" class="block text-[11px] font-bold text-navy-950 mb-1">停止の長さ</label>
+            <select id="hq-action-length" class="w-full px-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-sm font-bold">
+              ${HQ_STOP_LENGTHS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}
+            </select>
+            <p id="hq-action-until" class="text-[11px] font-bold text-crimson-700 mt-1"></p>
+          </div>
+          <div>
+            <label for="hq-action-memo" class="block text-[11px] font-bold text-navy-950 mb-1">理由・メモ（任意）</label>
+            <input id="hq-action-memo" type="text" maxlength="200" class="w-full px-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-sm" placeholder="例: 再三の注意を無視">
+          </div>
+          <p id="hq-action-note" class="text-[11px] font-bold text-slate-500"></p>
+          <div class="flex gap-2 justify-end">
+            <button type="button" onclick="closeHqActionModal()" class="px-4 py-2 rounded-[10px] border-2 border-navy-950 bg-white text-navy-950 text-sm font-black">やめる</button>
+            <button type="button" id="hq-action-submit" onclick="submitHqAction()" class="px-4 py-2 rounded-[10px] border-2 border-navy-950 bg-crimson-600 text-white text-sm font-black">記録する</button>
+          </div>
+        </div>`;
+      document.body.appendChild(wrap);
+      document.getElementById("hq-action-length").onchange = updateHqUntilPreview;
+    }
+
+    function updateHqUntilPreview() {
+      const now = Date.now();
+      const until = hqUntilFor(document.getElementById("hq-action-length").value, now);
+      document.getElementById("hq-action-until").textContent = `停止の期限: ${hqFormatUntil(until, now)}（期限が来たら自動で通常に戻ります）`;
+    }
+
+    function openHqActionModal(key, actionId) {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      ensureHqModal();
+      hqActionTarget = { key, actionId };
+      const info = hqAdapter().info(key);
+      document.getElementById("hq-action-title").textContent = `本部操作：${HQ_ACTION_LABEL[actionId]}`;
+      document.getElementById("hq-action-target").textContent = `${info.label}　${info.orgName}`;
+      document.getElementById("hq-action-length-box").classList.toggle("hidden", actionId !== "HQ-STOP");
+      document.getElementById("hq-action-memo").value = "";
+      document.getElementById("hq-action-note").textContent = actionId === "HQ-STOP"
+        ? hqAdapter().stopNote
+        : actionId === "HQ-CANCEL" ? "企画中止として記録します。誤りなら記録の「取り消す」で戻せます。"
+        : "いまかかっている停止・中止（点数による停止も含む）を解除します。";
+      const submit = document.getElementById("hq-action-submit");
+      submit.className = `px-4 py-2 rounded-[10px] border-2 border-navy-950 text-sm font-black ${actionId === "HQ-RESUME" ? "bg-navy-950 text-white" : "bg-crimson-600 text-white"}`;
+      submit.textContent = `${HQ_ACTION_LABEL[actionId]}を記録する`;
+      if (actionId === "HQ-STOP") { document.getElementById("hq-action-length").value = "h1"; updateHqUntilPreview(); }
+      document.getElementById("hq-action-modal").classList.remove("hidden");
+    }
+
+    function closeHqActionModal() {
+      const modal = document.getElementById("hq-action-modal");
+      if (modal) modal.classList.add("hidden");
+      hqActionTarget = null;
+    }
+
+    function hqHandleError(result, fallback) {
+      if (result && ["auth_failed", "auth_locked", "admin_not_configured"].includes(result.error)) {
+        clearHqSession(); requestHqLogin(); showAuthError(result.error);
+      } else showToast(fallback);
+    }
+
+    async function submitHqAction() {
+      const pass = getHqPass();
+      if (!pass) { requestHqLogin(); return; }
+      if (!hqActionTarget || hqSending) return;
+      if (!cloudApiUrl) { showToast("GASにつながっていないため記録できません。"); return; }
+      const { key, actionId } = hqActionTarget;
+      const info = hqAdapter().info(key);
+      const now = Date.now();
+      const festival = hqFestivalKeys();
+      const todayKey = hqDateKeyOf(now);
+      const date = festival.includes(todayKey) ? todayKey : hqAdapter().fallbackDate();
+      const until = actionId === "HQ-STOP" ? hqUntilFor(document.getElementById("hq-action-length").value, now) : null;
+      const [m, d] = date.split("-").map(Number);
+      const name = actionId === "HQ-STOP" ? `【本部】停止（${hqFormatUntil(until, now)}）` : `【本部】${HQ_ACTION_LABEL[actionId]}`;
+      const row = {
+        ...info.fields,
+        id: `HQ-${now}-${Math.random().toString(36).slice(2, 6)}`,
+        date, dateLabel: `${m}月${d}日`,
+        violationId: actionId, violationName: name, category: "本部操作",
+        points: 0, penalty: HQ_PENALTY[actionId],
+        until: until === null ? "" : hqLocalIso(until),
+        reporter: "本部", memo: (document.getElementById("hq-action-memo").value || "").trim(),
+        timestamp: `${hqPad(new Date(now).getHours())}:${hqPad(new Date(now).getMinutes())}`,
+        createdAt: new Date(now).toISOString()
+      };
+      if (APP_TYPE === "stall") row.dayIndex = Math.max(1, festival.indexOf(date) + 1);
+      hqSending = true;
+      const submit = document.getElementById("hq-action-submit");
+      submit.disabled = true;
+      try {
+        const result = await cloudRequest("hq", { pass, reports: [row] });
+        if (result.status !== "success" || !(result.data?.accepted || []).includes(row.id)) {
+          const reason = result.data?.rejected?.[0]?.reason;
+          hqHandleError(result, reason ? `記録できませんでした: ${reason}` : "記録できませんでした。通信を確認してもう一度押してください。");
+          return;
+        }
+        reports.unshift(row);
+        saveReportsLocally();
+        closeHqActionModal();
+        showToast(`${info.orgName}：${name.replace("【本部】", "")}を記録しました`);
+        hqAdapter().refresh(key);
+      } catch (e) {
+        showToast("通信に失敗しました。もう一度押してください。");
+      } finally {
+        hqSending = false;
+        submit.disabled = false;
+      }
+    }
+
+    async function undoHqAction(id) {
+      const pass = getHqPass();
+      if (!pass) { requestHqLogin(); return; }
+      const row = reports.find(r => r.id === id);
+      if (!row || !confirm(`「${row.violationName}」を取り消しますか？`)) return;
+      try {
+        const result = await cloudRequest("void", { pass, id, reason: "本部操作の取り消し" });
+        if (result.status !== "success") { hqHandleError(result, "取り消せませんでした。"); return; }
+        row.voided = true;
+        saveReportsLocally();
+        showToast("取り消しました");
+        hqAdapter().refresh(hqAdapter().keyOf(row));
+      } catch (e) { showToast("通信に失敗しました。もう一度押してください。"); }
+    }
+
+    // 停止の期限切れを画面に反映する（1分ごと）
+    setInterval(() => { try { if (getHqPass()) updateDashboardStats(); } catch (e) {} }, 60000);
   </script>
 </body>
 </html>

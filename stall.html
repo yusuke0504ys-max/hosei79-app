@@ -60,6 +60,24 @@
     }
 
 
+
+    /* スマホ幅では本部集計の表を1団体1枚のカードにする */
+    @media (max-width: 639px) {
+      .rank-table thead { display: none; }
+      .rank-table, .rank-table tbody { display: block; }
+      .rank-table tr { display: grid; column-gap: 0.6rem; row-gap: 0.35rem; padding: 0.75rem; align-items: center; }
+      .rank-table td { padding: 0 !important; text-align: left; }
+      .rank-table td[colspan] { grid-column: 1 / -1; text-align: center; }
+      .rank-table td:nth-child(1) { grid-area: rank; align-self: start; }
+      .rank-table tr { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "rank place score" "rank org score" "rank status detail"; }
+      .rank-table td:nth-child(2) { grid-area: place; }
+      .rank-table td:nth-child(2) > span { display: inline-block; margin: 0 0.4rem 0 0; }
+      .rank-table td:nth-child(3) { grid-area: org; }
+      .rank-table td:nth-child(4) { grid-area: score; text-align: right; }
+      .rank-table td:nth-child(5) { grid-area: status; }
+      .rank-table td:nth-child(5) > span { margin: 0; }
+      .rank-table td:nth-child(6) { grid-area: detail; text-align: right; }
+    }
   </style>
 </head>
 <body class="bg-white text-navy-950 min-h-screen flex flex-col antialiased selection:bg-crimson-600 selection:text-white">
@@ -230,15 +248,15 @@
 
       <!-- STEP 4: 違反項目を選択＆報告確定（点数制・複数選択可能） -->
       <section id="step-card-violation" class="bg-white rounded-[10px] p-5 sm:p-6 border-2 border-navy-950 transition-all opacity-50 pointer-events-none">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-start justify-between gap-2 mb-4">
           <div>
             <h2 class="text-base sm:text-lg font-black text-navy-950 flex items-center gap-2">
-              <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm">4</span>
+              <span aria-hidden="true">✦</span> <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-400 flex items-center justify-center font-black text-sm flex-shrink-0">4</span>
               違反項目を選択・報告（点数制・複数選択可）
             </h2>
             <p class="text-xs text-slate-500 mt-0.5">違反を選んで、名前を書いて登録（複数可）</p>
           </div>
-          <span class="text-xs font-bold text-navy-900 bg-gold-100 border-2 border-navy-950 px-2.5 py-1 rounded-[10px] flex items-center gap-1">
+          <span class="text-xs font-bold text-navy-900 bg-gold-100 border-2 border-navy-950 px-2.5 py-1 rounded-[10px] hidden sm:flex items-center gap-1 whitespace-nowrap flex-shrink-0">
             <i data-lucide="check-square" class="w-3.5 h-3.5 text-gold-700"></i> 複数選択OK
           </span>
         </div>
@@ -498,7 +516,7 @@
         </div>
 
         <div class="overflow-x-auto rounded-[10px] border-2 border-navy-950">
-          <table class="w-full text-left text-xs">
+          <table class="rank-table w-full text-left text-xs">
             <thead>
               <tr class="bg-navy-950 text-gold-300 font-black border-b-2 border-navy-950">
                 <th class="py-3 px-3.5 text-center w-14">順位</th>
@@ -550,9 +568,9 @@
           <span class="text-slate-400 font-bold">対象屋台</span>
           <span id="modal-info-org" class="font-black text-navy-950 truncate max-w-[200px]">--</span>
         </div>
-        <div class="flex justify-between items-start">
+        <div class="flex justify-between items-start gap-3">
           <span class="text-slate-400 font-bold flex-shrink-0">報告項目</span>
-          <div id="modal-info-violation-list" class="font-bold text-crimson-700 text-right space-y-1">--</div>
+          <div id="modal-info-violation-list" class="flex-1 font-bold text-crimson-700 text-left space-y-1 min-w-0">--</div>
         </div>
         <div class="flex justify-between border-t-2 border-navy-950 pt-2 items-center">
           <span class="text-slate-500 font-black">現在のスライド累積点数</span>
@@ -610,7 +628,7 @@
       </div>
 
       <!-- 全スライド期間の小計一覧グリッド（小計の欠落防止） -->
-      <div class="grid grid-cols-4 gap-1.5 mb-3 text-center">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mb-3 text-center">
         <div id="modal-box-day1-2" class="p-2 rounded-[10px] border-2 bg-white flex flex-col justify-between">
           <span class="text-[9px] font-bold text-slate-400 block leading-tight">1+2日目</span>
           <span id="modal-score-day1-2" class="text-xs sm:text-sm font-black text-navy-950">0pt</span>
@@ -1580,6 +1598,7 @@
                   <span class="text-[10px] font-black px-1.5 py-0.5 rounded-[10px] bg-white text-slate-600 border-2 border-navy-950">
                     No.${s.orgNumber}
                   </span>
+                  ${(() => { const st = stallStatus(s.stallId, activePeriodForDate); return ["中止", "停止"].includes(st.kind) ? hqStateBadge(st.kind === "中止" ? "企画中止" : st.text.replace("企画停止", "停止中"), st.kind === "中止") : ""; })()}
                 </div>
                 ${getHqPass() ? (displayScore > 0 ? `
                   <span class="text-[10px] font-black px-2 py-0.5 rounded-[10px] ${
@@ -2174,9 +2193,10 @@
 
       Object.keys(allScoreMap).forEach(stallId => {
         const currentScore = getStallScore(stallId, currentPeriod);
+        const st = stallStatus(stallId, currentPeriod);
         if (currentScore > 0) periodViolatedCount++;
-        if (currentScore >= Number(STALL_RULES["屋台_停止点"])) dangerCount++;
-        else if (currentScore >= Number(STALL_RULES["屋台_注意点"])) warningCount++;
+        if (["中止", "停止", "自動停止"].includes(st.kind)) dangerCount++;
+        else if (st.kind === "注意" || st.kind === "再開済") warningCount++;
       });
 
       document.getElementById("stat-total-stalls-violated").innerText = periodViolatedCount;
@@ -2219,7 +2239,10 @@
       });
 
       // 選択中期間の点数順（同じ場合は全日累計順）でソート
+      const STALL_ORDER = { "中止": 5, "停止": 4, "自動停止": 4, "再開済": 2, "注意": 2 };
+      scoredStalls.forEach(x => { x.rank = STALL_ORDER[stallStatus(x.stallId, currentPeriod).kind] || 0; });
       scoredStalls.sort((a, b) => {
+        if (b.rank !== a.rank) return b.rank - a.rank;
         if (b.currentScore !== a.currentScore) {
           return b.currentScore - a.currentScore;
         }
@@ -2242,8 +2265,17 @@
         let rankBadgeClass = "bg-white text-slate-700";
         let rowClass = "hover:bg-white cursor-pointer transition bg-white";
 
-        if (s.currentScore >= Number(STALL_RULES["屋台_停止点"])) {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-crimson-600 text-white flex items-center gap-1 mx-auto w-fit"><i data-lucide="octagon-alert" class="w-3 h-3"></i>企画停止 (${s.currentScore}点)</span>`;
+        const st = stallStatus(s.stallId, currentPeriod);
+        if (st.kind === "中止" || st.kind === "停止") {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black ${st.kind === "中止" ? "bg-crimson-800" : "bg-crimson-600"} text-white flex items-center gap-1 mx-auto w-fit"><i data-lucide="octagon-alert" class="w-3 h-3"></i>${escapeHqText(st.text)}</span>`;
+          rankBadgeClass = "bg-crimson-600 text-white";
+          rowClass = "hover:bg-crimson-50/60 cursor-pointer transition bg-crimson-50/30";
+        } else if (st.kind === "再開済") {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-crimson-100 text-crimson-900 border-2 border-crimson-400 flex items-center gap-1 mx-auto w-fit">${escapeHqText(st.text)}</span>`;
+          rankBadgeClass = "bg-crimson-500 text-white";
+          rowClass = "hover:bg-crimson-50/70 cursor-pointer transition bg-crimson-50/30";
+        } else if (s.currentScore >= Number(STALL_RULES["屋台_停止点"])) {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-crimson-600 text-white flex items-center gap-1 mx-auto w-fit"><i data-lucide="octagon-alert" class="w-3 h-3"></i>企画停止 (${s.currentScore}点・再開待ち)</span>`;
           rankBadgeClass = "bg-crimson-600 text-white";
           rowClass = "hover:bg-crimson-50/60 cursor-pointer transition bg-crimson-50/30";
         } else if (s.currentScore >= Number(STALL_RULES["屋台_注意点"])) {
@@ -2274,8 +2306,8 @@
               <div class="leading-tight">${s.orgName}</div>
               <div class="text-[10px] text-slate-400 font-bold mt-0.5 flex items-center gap-2">
                 <span>${s.menuText}</span>
-                <span class="text-slate-300">|</span>
-                <span class="text-navy-900 font-bold">内訳: ${stallPeriodLabel("day1-2")}(${s.scoreDay12}pt) / ${stallPeriodLabel("day2-3")}(${s.scoreDay23}pt) / ${stallPeriodLabel("day3-4")}(${s.scoreDay34}pt)</span>
+                <span class="text-slate-300 hidden sm:inline">|</span>
+                <span class="text-navy-900 font-bold hidden sm:inline">内訳: ${stallPeriodLabel("day1-2")}(${s.scoreDay12}pt) / ${stallPeriodLabel("day2-3")}(${s.scoreDay23}pt) / ${stallPeriodLabel("day3-4")}(${s.scoreDay34}pt)</span>
               </div>
             </td>
             <td class="py-3 px-3.5 text-center font-black">
@@ -2347,7 +2379,11 @@
       const statusContainer = document.getElementById("modal-detail-status-pill");
       const iconBox = document.getElementById("modal-detail-badge-icon");
 
-      if (scoreCurrent >= Number(STALL_RULES["屋台_停止点"])) {
+      const stNow = stallStatus(stallId, currentPeriod);
+      if (["中止", "停止", "再開済"].includes(stNow.kind)) {
+        iconBox.className = "w-11 h-11 rounded-[10px] bg-crimson-600 text-white flex items-center justify-center flex-shrink-0";
+        statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black ${stNow.kind === "再開済" ? "bg-crimson-100 text-crimson-900 border-2 border-crimson-400" : "bg-crimson-600 text-white"} flex items-center gap-1">${escapeHqText(stNow.text)}</span>`;
+      } else if (scoreCurrent >= Number(STALL_RULES["屋台_停止点"])) {
         iconBox.className = "w-11 h-11 rounded-[10px] bg-crimson-600 text-white flex items-center justify-center flex-shrink-0";
         statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-600 text-white flex items-center gap-1"><i data-lucide="octagon-alert" class="w-3.5 h-3.5"></i> 企画停止 (${STALL_RULES["屋台_停止点"]}点到達)</span>`;
       } else if (scoreCurrent >= Number(STALL_RULES["屋台_注意点"])) {
@@ -2360,11 +2396,11 @@
 
       // 履歴一覧
       const listEl = document.getElementById("modal-detail-list");
-      listEl.innerHTML = stallReports.map((item, idx) => `
+      listEl.innerHTML = hqPanelHTML(stallId) + stallReports.map((item, idx) => `
         <div class="p-3.5 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 transition space-y-2">
           <div class="flex items-center justify-between flex-wrap gap-1">
             <div class="flex items-center gap-2">
-              <span class="w-7 h-7 rounded-[10px] bg-navy-950 text-gold-300 flex items-center justify-center font-black text-xs">
+              <span class="h-7 px-1.5 rounded-[10px] bg-navy-950 text-gold-300 flex items-center justify-center font-black text-xs whitespace-nowrap flex-shrink-0">
                 +${item.points}pt
               </span>
               <h4 class="text-xs sm:text-sm font-black text-navy-950">${item.violationName}</h4>
@@ -2409,7 +2445,7 @@
       container.innerHTML = reports.slice(0, 10).map(r => `
         <div class="p-3.5 rounded-[10px] border-2 border-navy-950 bg-white hover:border-navy-950 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="flex items-start gap-3">
-            <span class="w-9 h-9 rounded-[10px] bg-crimson-50 text-crimson-700 border-2 border-crimson-200 flex items-center justify-center font-black text-xs flex-shrink-0 mt-0.5">
+            <span class="min-w-[2.25rem] h-9 px-1 rounded-[10px] bg-crimson-50 text-crimson-700 border-2 border-crimson-200 flex items-center justify-center font-black text-[11px] whitespace-nowrap flex-shrink-0 mt-0.5">
               ${getHqPass() ? `+${r.points}pt` : ""}
             </span>
             <div>
@@ -2539,6 +2575,300 @@
         if (cloudApiUrl) syncWithCloud(false);
       }, 30000);
     };
+  </script>
+  <script>
+    // 屋台の状態: 本部の中止・停止 > 点数（連続2日合計）による停止（本部が再開するまで）> 注意
+    function stallStatus(stallId, periodKey) {
+      const now = Date.now();
+      const rows = reports.filter(r => isReportForStall(r, stallId));
+      const tl = hqTimeline(rows);
+      if (hqActiveAt(tl.cancels, now).length) return { kind: "中止", text: "企画中止（本部判断）" };
+      const stop = hqActiveAt(tl.stops, now)[0];
+      if (stop) return { kind: "停止", text: `企画停止（${hqFormatUntil(stop.end, now)}）` };
+      const score = getStallScore(stallId, periodKey);
+      if (score >= Number(STALL_RULES["屋台_停止点"])) {
+        const lastPoint = Math.max(0, ...rows.filter(r => !isHqAction(r) && isReportInPeriod(r, periodKey) && parsePoints(r.points) > 0)
+          .map(r => hqParseTime(r.createdAt) ?? 0));
+        if (tl.resumes.some(t => t > lastPoint)) return { kind: "再開済", text: `${score}点・本部が再開済み` };
+        return { kind: "自動停止", text: `企画停止（${score}点・再開待ち）` };
+      }
+      if (score >= Number(STALL_RULES["屋台_注意点"])) return { kind: "注意", text: `注意（${score}点）` };
+      return { kind: "通常", text: score > 0 ? `通常（${score}点）` : "通常" };
+    }
+
+    // 本部操作の屋台用のつなぎ
+    function hqAdapter() {
+      const planOf = key => STALL_PLANS.find(p => p.stallId === key) || reports.find(r => isReportForStall(r, key)) || { stallId: key, badgeName: key, orgName: "" };
+      return {
+        matches: (r, key) => isReportForStall(r, key),
+        keyOf: r => { const p = STALL_PLANS.find(x => isReportForStall(r, x.stallId)); return p ? p.stallId : r.stallId; },
+        fallbackDate: () => wizardState.date || hqFestivalKeys()[0],
+        stopNote: "期限が来るか「再開」を記録するまで停止中と表示します。誤りなら記録の「取り消す」で戻せます。",
+        info: key => {
+          const p = planOf(key);
+          const area = AREAS.find(a => a.id === p.areaId);
+          const areaName = p.areaName || (area ? area.name : "");
+          return { label: `${p.badgeName}（${areaName}）`, orgName: p.orgName,
+            fields: { areaId: p.areaId || "", areaName, stallId: p.stallId, badgeName: p.badgeName, orgNumber: p.orgNumber || "", orgName: p.orgName, menuText: p.menuText || "" } };
+        },
+        state: key => ({ text: stallStatus(key, currentPeriod).text }),
+        refresh: key => {
+          updateDashboardStats();
+          if (!document.getElementById("stall-detail-modal").classList.contains("hidden")) openStallDetailModal(key);
+        }
+      };
+    }
+  </script>
+  <script>
+    // ----------------------------------------------------
+    // 本部操作（停止・中止・再開）  ※教室・屋台で同じコード。tools/hq-actions.js が元
+    // 操作は報告と同じシートに「HQ-」で始まる違反IDの行として残す（合言葉つきの action=hq）。
+    // 取り消しは既存の void（取消）を使う。
+    // ----------------------------------------------------
+    const HQ_STOP_LENGTHS = [
+      ["h1", "1時間"], ["h2", "2時間"], ["h3", "3時間"], ["h4", "4時間"], ["h6", "6時間"],
+      ["today", "今日いっぱい"], ["d2", "明日いっぱいまで（2日間）"], ["d3", "3日間"], ["all", "残り全日"]
+    ];
+    const HQ_ACTION_LABEL = { "HQ-STOP": "停止", "HQ-CANCEL": "中止", "HQ-RESUME": "再開" };
+    const HQ_PENALTY = { "HQ-STOP": "本部停止", "HQ-CANCEL": "本部中止", "HQ-RESUME": "本部再開" };
+    let hqActionTarget = null;
+    let hqSending = false;
+
+    function isHqAction(r) { return !!r && /^HQ-/.test(String(r.violationId || "")); }
+    function hqIsVoided(r) { return r.voided === true || String(r.voided).toUpperCase() === "TRUE"; }
+    function hqRules() { return APP_TYPE === "classroom" ? CLASSROOM_RULES : STALL_RULES; }
+    function hqPad(n) { return String(n).padStart(2, "0"); }
+    function hqDateKeyOf(ms) { const d = new Date(ms); return `${hqPad(d.getMonth() + 1)}-${hqPad(d.getDate())}`; }
+    function hqLocalIso(ms) {
+      const d = new Date(ms);
+      return `${d.getFullYear()}-${hqPad(d.getMonth() + 1)}-${hqPad(d.getDate())}T${hqPad(d.getHours())}:${hqPad(d.getMinutes())}:00`;
+    }
+    function hqParseTime(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const t = Date.parse(String(value));
+      return Number.isFinite(t) ? t : null;
+    }
+
+    // 開催日（例 "10-31"）の 0時〜24時 を端末の時刻で返す
+    function hqDayRange(dateKey, rules) {
+      const full = String((rules || hqRules())["開催日"] || "").split(",").map(s => s.trim()).find(s => s.slice(-5) === dateKey);
+      const year = full ? Number(full.slice(0, 4)) : new Date().getFullYear();
+      const [m, d] = String(dateKey).split("-").map(Number);
+      const start = new Date(year, (m || 1) - 1, d || 1).getTime();
+      return [start, new Date(year, (m || 1) - 1, (d || 1) + 1).getTime()];
+    }
+
+    function hqFestivalKeys(rules) {
+      return String((rules || hqRules())["開催日"] || "").split(",").map(s => s.trim().slice(-5)).filter(Boolean).sort();
+    }
+
+    // 停止の長さ → 期限（ms）。残り全日は null
+    function hqUntilFor(lengthKey, now) {
+      const hours = String(lengthKey).match(/^h(\d+)$/);
+      if (hours) return now + Number(hours[1]) * 3600000;
+      if (lengthKey === "all") return null;
+      const days = lengthKey === "today" ? 1 : Number(String(lengthKey).slice(1)) || 1;
+      const d = new Date(now);
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days).getTime();
+    }
+
+    function hqFormatUntil(until, refMs) {
+      if (until === null || until === undefined) return "残り全日";
+      const d = new Date(until);
+      const midnight = d.getHours() === 0 && d.getMinutes() === 0;
+      if (midnight) {
+        const last = new Date(until - 1);
+        return hqDateKeyOf(until - 1) === hqDateKeyOf(refMs) ? "今日いっぱい" : `${last.getMonth() + 1}/${last.getDate()}いっぱい`;
+      }
+      const hm = `${hqPad(d.getHours())}:${hqPad(d.getMinutes())}`;
+      return hqDateKeyOf(until) === hqDateKeyOf(refMs) ? `${hm}まで` : `${d.getMonth() + 1}/${d.getDate()} ${hm}まで`;
+    }
+
+    // 本部操作だけで決まる流れ（屋台用。教室は judgeClassroom の中で同じ考え方で数える）
+    function hqTimeline(rows) {
+      const stops = [], cancels = [], resumes = [];
+      rows.filter(r => isHqAction(r) && !hqIsVoided(r))
+        .map(r => ({ r, t: hqParseTime(r.createdAt) ?? 0 }))
+        .sort((a, b) => a.t - b.t)
+        .forEach(({ r, t }) => {
+          if (r.violationId === "HQ-STOP") stops.push({ start: t, end: hqParseTime(r.until), reportId: r.id, manual: true });
+          else if (r.violationId === "HQ-CANCEL") cancels.push({ start: t, end: null, reportId: r.id, reason: "本部判断" });
+          else if (r.violationId === "HQ-RESUME") {
+            resumes.push(t);
+            [...stops, ...cancels].forEach(s => { if (s.start <= t && (s.end === null || s.end > t)) s.end = t; });
+          }
+        });
+      return { stops, cancels, resumes };
+    }
+
+    function hqActiveAt(list, T) { return list.filter(s => s.start <= T && (s.end === null || s.end > T)); }
+
+    // ---------- 画面 ----------
+    function hqStateBadge(text, strong) {
+      if (!text) return "";
+      return `<span class="inline-block px-2 py-0.5 rounded-[10px] text-[10px] font-black border-2 ${strong ? "bg-crimson-700 text-white border-crimson-900" : "bg-crimson-100 text-crimson-900 border-crimson-500"}">${escapeHqText(text)}</span>`;
+    }
+    function escapeHqText(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+
+    // 詳細モーダルの上に出す操作パネル
+    function hqPanelHTML(key) {
+      const state = hqAdapter().state(key);
+      const rows = reports.filter(r => isHqAction(r) && hqAdapter().matches(r, key));
+      const history = rows.map(r => `
+        <div class="flex items-center justify-between gap-2 text-[11px] font-bold py-1 border-t border-navy-950/20 ${hqIsVoided(r) ? "line-through text-slate-400" : "text-navy-950"}">
+          <span>${escapeHqText(r.dateLabel || r.date)} ${escapeHqText(r.timestamp)}　${escapeHqText(r.violationName)}${r.memo ? `（${escapeHqText(r.memo)}）` : ""}</span>
+          ${hqIsVoided(r) ? `<span>取消済</span>` : `<button type="button" onclick="undoHqAction('${escapeHqText(r.id)}')" class="px-2 py-0.5 rounded-[10px] border-2 border-navy-950 bg-white text-navy-950 text-[10px] font-black flex-shrink-0">取り消す</button>`}
+        </div>`).join("");
+      return `
+        <div class="p-3.5 rounded-[10px] border-2 border-navy-950 bg-gold-50/70 space-y-2">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <span class="text-xs font-black text-navy-950">本部操作　<span class="text-crimson-700">いま: ${escapeHqText(state.text)}</span></span>
+            <div class="flex gap-1.5 flex-wrap">
+              <button type="button" onclick="openHqActionModal('${escapeHqText(key)}','HQ-STOP')" class="px-3 py-1.5 rounded-[10px] border-2 border-navy-950 bg-crimson-600 text-white text-xs font-black">停止する</button>
+              <button type="button" onclick="openHqActionModal('${escapeHqText(key)}','HQ-CANCEL')" class="px-3 py-1.5 rounded-[10px] border-2 border-navy-950 bg-crimson-800 text-white text-xs font-black">中止にする</button>
+              <button type="button" onclick="openHqActionModal('${escapeHqText(key)}','HQ-RESUME')" class="px-3 py-1.5 rounded-[10px] border-2 border-navy-950 bg-white text-navy-950 text-xs font-black">再開する</button>
+            </div>
+          </div>
+          ${history ? `<div>${history}</div>` : `<p class="text-[11px] font-bold text-slate-500">本部操作の記録はまだありません</p>`}
+        </div>`;
+    }
+
+    function ensureHqModal() {
+      if (document.getElementById("hq-action-modal")) return;
+      const wrap = document.createElement("div");
+      wrap.id = "hq-action-modal";
+      wrap.className = "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-navy-950/80 hidden";
+      wrap.innerHTML = `
+        <div class="bg-white border-2 border-navy-950 rounded-[10px] w-full max-w-md p-5 space-y-4">
+          <h3 id="hq-action-title" class="text-base font-black text-navy-950"></h3>
+          <p id="hq-action-target" class="text-xs font-bold text-slate-600"></p>
+          <div id="hq-action-length-box">
+            <label for="hq-action-length" class="block text-[11px] font-bold text-navy-950 mb-1">停止の長さ</label>
+            <select id="hq-action-length" class="w-full px-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-sm font-bold">
+              ${HQ_STOP_LENGTHS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}
+            </select>
+            <p id="hq-action-until" class="text-[11px] font-bold text-crimson-700 mt-1"></p>
+          </div>
+          <div>
+            <label for="hq-action-memo" class="block text-[11px] font-bold text-navy-950 mb-1">理由・メモ（任意）</label>
+            <input id="hq-action-memo" type="text" maxlength="200" class="w-full px-3 py-2 bg-white border-2 border-navy-950 rounded-[10px] text-sm" placeholder="例: 再三の注意を無視">
+          </div>
+          <p id="hq-action-note" class="text-[11px] font-bold text-slate-500"></p>
+          <div class="flex gap-2 justify-end">
+            <button type="button" onclick="closeHqActionModal()" class="px-4 py-2 rounded-[10px] border-2 border-navy-950 bg-white text-navy-950 text-sm font-black">やめる</button>
+            <button type="button" id="hq-action-submit" onclick="submitHqAction()" class="px-4 py-2 rounded-[10px] border-2 border-navy-950 bg-crimson-600 text-white text-sm font-black">記録する</button>
+          </div>
+        </div>`;
+      document.body.appendChild(wrap);
+      document.getElementById("hq-action-length").onchange = updateHqUntilPreview;
+    }
+
+    function updateHqUntilPreview() {
+      const now = Date.now();
+      const until = hqUntilFor(document.getElementById("hq-action-length").value, now);
+      document.getElementById("hq-action-until").textContent = `停止の期限: ${hqFormatUntil(until, now)}（期限が来たら自動で通常に戻ります）`;
+    }
+
+    function openHqActionModal(key, actionId) {
+      if (!getHqPass()) { requestHqLogin(); return; }
+      ensureHqModal();
+      hqActionTarget = { key, actionId };
+      const info = hqAdapter().info(key);
+      document.getElementById("hq-action-title").textContent = `本部操作：${HQ_ACTION_LABEL[actionId]}`;
+      document.getElementById("hq-action-target").textContent = `${info.label}　${info.orgName}`;
+      document.getElementById("hq-action-length-box").classList.toggle("hidden", actionId !== "HQ-STOP");
+      document.getElementById("hq-action-memo").value = "";
+      document.getElementById("hq-action-note").textContent = actionId === "HQ-STOP"
+        ? hqAdapter().stopNote
+        : actionId === "HQ-CANCEL" ? "企画中止として記録します。誤りなら記録の「取り消す」で戻せます。"
+        : "いまかかっている停止・中止（点数による停止も含む）を解除します。";
+      const submit = document.getElementById("hq-action-submit");
+      submit.className = `px-4 py-2 rounded-[10px] border-2 border-navy-950 text-sm font-black ${actionId === "HQ-RESUME" ? "bg-navy-950 text-white" : "bg-crimson-600 text-white"}`;
+      submit.textContent = `${HQ_ACTION_LABEL[actionId]}を記録する`;
+      if (actionId === "HQ-STOP") { document.getElementById("hq-action-length").value = "h1"; updateHqUntilPreview(); }
+      document.getElementById("hq-action-modal").classList.remove("hidden");
+    }
+
+    function closeHqActionModal() {
+      const modal = document.getElementById("hq-action-modal");
+      if (modal) modal.classList.add("hidden");
+      hqActionTarget = null;
+    }
+
+    function hqHandleError(result, fallback) {
+      if (result && ["auth_failed", "auth_locked", "admin_not_configured"].includes(result.error)) {
+        clearHqSession(); requestHqLogin(); showAuthError(result.error);
+      } else showToast(fallback);
+    }
+
+    async function submitHqAction() {
+      const pass = getHqPass();
+      if (!pass) { requestHqLogin(); return; }
+      if (!hqActionTarget || hqSending) return;
+      if (!cloudApiUrl) { showToast("GASにつながっていないため記録できません。"); return; }
+      const { key, actionId } = hqActionTarget;
+      const info = hqAdapter().info(key);
+      const now = Date.now();
+      const festival = hqFestivalKeys();
+      const todayKey = hqDateKeyOf(now);
+      const date = festival.includes(todayKey) ? todayKey : hqAdapter().fallbackDate();
+      const until = actionId === "HQ-STOP" ? hqUntilFor(document.getElementById("hq-action-length").value, now) : null;
+      const [m, d] = date.split("-").map(Number);
+      const name = actionId === "HQ-STOP" ? `【本部】停止（${hqFormatUntil(until, now)}）` : `【本部】${HQ_ACTION_LABEL[actionId]}`;
+      const row = {
+        ...info.fields,
+        id: `HQ-${now}-${Math.random().toString(36).slice(2, 6)}`,
+        date, dateLabel: `${m}月${d}日`,
+        violationId: actionId, violationName: name, category: "本部操作",
+        points: 0, penalty: HQ_PENALTY[actionId],
+        until: until === null ? "" : hqLocalIso(until),
+        reporter: "本部", memo: (document.getElementById("hq-action-memo").value || "").trim(),
+        timestamp: `${hqPad(new Date(now).getHours())}:${hqPad(new Date(now).getMinutes())}`,
+        createdAt: new Date(now).toISOString()
+      };
+      if (APP_TYPE === "stall") row.dayIndex = Math.max(1, festival.indexOf(date) + 1);
+      hqSending = true;
+      const submit = document.getElementById("hq-action-submit");
+      submit.disabled = true;
+      try {
+        const result = await cloudRequest("hq", { pass, reports: [row] });
+        if (result.status !== "success" || !(result.data?.accepted || []).includes(row.id)) {
+          const reason = result.data?.rejected?.[0]?.reason;
+          hqHandleError(result, reason ? `記録できませんでした: ${reason}` : "記録できませんでした。通信を確認してもう一度押してください。");
+          return;
+        }
+        reports.unshift(row);
+        saveReportsLocally();
+        closeHqActionModal();
+        showToast(`${info.orgName}：${name.replace("【本部】", "")}を記録しました`);
+        hqAdapter().refresh(key);
+      } catch (e) {
+        showToast("通信に失敗しました。もう一度押してください。");
+      } finally {
+        hqSending = false;
+        submit.disabled = false;
+      }
+    }
+
+    async function undoHqAction(id) {
+      const pass = getHqPass();
+      if (!pass) { requestHqLogin(); return; }
+      const row = reports.find(r => r.id === id);
+      if (!row || !confirm(`「${row.violationName}」を取り消しますか？`)) return;
+      try {
+        const result = await cloudRequest("void", { pass, id, reason: "本部操作の取り消し" });
+        if (result.status !== "success") { hqHandleError(result, "取り消せませんでした。"); return; }
+        row.voided = true;
+        saveReportsLocally();
+        showToast("取り消しました");
+        hqAdapter().refresh(hqAdapter().keyOf(row));
+      } catch (e) { showToast("通信に失敗しました。もう一度押してください。"); }
+    }
+
+    // 停止の期限切れを画面に反映する（1分ごと）
+    setInterval(() => { try { if (getHqPass()) updateDashboardStats(); } catch (e) {} }, 60000);
   </script>
 </body>
 </html>
