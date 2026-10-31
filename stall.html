@@ -468,7 +468,7 @@
             <span id="stat-danger-stalls" class="text-3xl font-black text-crimson-700">-</span>
             <span class="text-xs text-crimson-800 font-black">店舗</span>
           </div>
-          <span class="text-[10px] text-crimson-700/90 mt-1 font-bold">営業停止審議対象</span>
+          <span class="text-[10px] text-crimson-700/90 mt-1 font-bold">本部が停止・中止にした屋台</span>
         </div>
       </div>
 
@@ -1901,7 +1901,7 @@
 
       showSuccessModal(createdEntries, totalScore);
 
-      if (getHqPass() && totalScore >= Number(STALL_RULES["屋台_停止点"])) {
+      if (false) {
         playSound('alert');
       } else {
         playSound('success');
@@ -1924,11 +1924,11 @@
 
     function updateStallRuleUI() {
       const warning = STALL_RULES["屋台_注意点"], stop = STALL_RULES["屋台_停止点"];
-      document.getElementById("stall-rule-guidance").textContent = `屋台は${STALL_RULES["屋台_合計期間"]}の合計で${warning}点で注意、${stop}点で企画停止となります。`;
-      document.getElementById("stall-rule-thresholds").textContent = `${warning}pt注意 / ${stop}pt停止`;
+      document.getElementById("stall-rule-guidance").textContent = `屋台は${STALL_RULES["屋台_合計期間"]}の合計で${warning}点で注意、${stop}点で企画停止の対象です（停止するかは本部が判断します）。`;
+      document.getElementById("stall-rule-thresholds").textContent = `${warning}pt注意 / 停止・中止は本部が操作`;
       document.getElementById("stall-rule-period").textContent = `${STALL_RULES["屋台_合計期間"]}の積算点数と全日総計を表示（本部認証要）`;
-      document.getElementById("stall-stop-label").textContent = `企画停止 (${stop}点〜)`;
-      document.getElementById("stall-warning-label").textContent = `注意 (${warning}〜${Number(stop) - 1}点)`;
+      document.getElementById("stall-stop-label").textContent = "停止・中止（本部）";
+      document.getElementById("stall-warning-label").textContent = `注意 (${warning}点〜)`;
       document.getElementById("stall-stop-guidance").textContent = `累積点数が${stop}点（企画停止）に到達しました`;
       let fourth = document.getElementById("btn-period-day4");
       if (!fourth) {
@@ -1976,7 +1976,7 @@
       total.parentElement.classList.toggle("hidden", !getHqPass());
       total.innerText = getHqPass() ? `${totalScore} 点` : "";
 
-      if (getHqPass() && totalScore >= Number(STALL_RULES["屋台_停止点"])) {
+      if (false) {
         iconBox.className = "w-16 h-16 rounded-[10px] mx-auto flex items-center justify-center mb-4 bg-crimson-600 text-white border-2 border-crimson-400";
         iconBox.innerHTML = `<i data-lucide="octagon-alert" class="w-8 h-8"></i>`;
         statusBadge.className = "px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-600 text-white inline-block mb-2";
@@ -2195,8 +2195,8 @@
         const currentScore = getStallScore(stallId, currentPeriod);
         const st = stallStatus(stallId, currentPeriod);
         if (currentScore > 0) periodViolatedCount++;
-        if (["中止", "停止", "自動停止"].includes(st.kind)) dangerCount++;
-        else if (st.kind === "注意" || st.kind === "再開済") warningCount++;
+        if (["中止", "停止"].includes(st.kind)) dangerCount++;
+        else if (st.kind === "注意") warningCount++;
       });
 
       document.getElementById("stat-total-stalls-violated").innerText = periodViolatedCount;
@@ -2239,7 +2239,7 @@
       });
 
       // 選択中期間の点数順（同じ場合は全日累計順）でソート
-      const STALL_ORDER = { "中止": 5, "停止": 4, "自動停止": 4, "再開済": 2, "注意": 2 };
+      const STALL_ORDER = { "中止": 5, "停止": 4, "注意": 2 };
       scoredStalls.forEach(x => { x.rank = STALL_ORDER[stallStatus(x.stallId, currentPeriod).kind] || 0; });
       scoredStalls.sort((a, b) => {
         if (b.rank !== a.rank) return b.rank - a.rank;
@@ -2268,14 +2268,6 @@
         const st = stallStatus(s.stallId, currentPeriod);
         if (st.kind === "中止" || st.kind === "停止") {
           statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black ${st.kind === "中止" ? "bg-crimson-800" : "bg-crimson-600"} text-white flex items-center gap-1 mx-auto w-fit"><i data-lucide="octagon-alert" class="w-3 h-3"></i>${escapeHqText(st.text)}</span>`;
-          rankBadgeClass = "bg-crimson-600 text-white";
-          rowClass = "hover:bg-crimson-50/60 cursor-pointer transition bg-crimson-50/30";
-        } else if (st.kind === "再開済") {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-crimson-100 text-crimson-900 border-2 border-crimson-400 flex items-center gap-1 mx-auto w-fit">${escapeHqText(st.text)}</span>`;
-          rankBadgeClass = "bg-crimson-500 text-white";
-          rowClass = "hover:bg-crimson-50/70 cursor-pointer transition bg-crimson-50/30";
-        } else if (s.currentScore >= Number(STALL_RULES["屋台_停止点"])) {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-[10px] text-[11px] font-black bg-crimson-600 text-white flex items-center gap-1 mx-auto w-fit"><i data-lucide="octagon-alert" class="w-3 h-3"></i>企画停止 (${s.currentScore}点・再開待ち)</span>`;
           rankBadgeClass = "bg-crimson-600 text-white";
           rowClass = "hover:bg-crimson-50/60 cursor-pointer transition bg-crimson-50/30";
         } else if (s.currentScore >= Number(STALL_RULES["屋台_注意点"])) {
@@ -2314,7 +2306,7 @@
               <div class="text-base ${s.currentScore >= Number(STALL_RULES["屋台_停止点"]) ? 'text-crimson-700 font-black' : (s.currentScore >= Number(STALL_RULES["屋台_注意点"]) ? 'text-crimson-700 font-black' : 'text-navy-950')}">
                 ${s.currentScore} <span class="text-xs font-bold text-slate-500">点</span>
               </div>
-              <div class="text-[10px] text-slate-400 font-bold">全日: ${s.totalScore}pt</div>
+              <div class="text-sm font-black text-navy-950 mt-0.5">全日累計 ${s.totalScore} <span class="text-[10px] font-bold text-slate-500">点</span></div>
             </td>
             <td class="py-3 px-3.5 text-center">${statusBadge}</td>
             <td class="py-3 px text-center">
@@ -2380,10 +2372,10 @@
       const iconBox = document.getElementById("modal-detail-badge-icon");
 
       const stNow = stallStatus(stallId, currentPeriod);
-      if (["中止", "停止", "再開済"].includes(stNow.kind)) {
+      if (["中止", "停止"].includes(stNow.kind)) {
         iconBox.className = "w-11 h-11 rounded-[10px] bg-crimson-600 text-white flex items-center justify-center flex-shrink-0";
-        statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black ${stNow.kind === "再開済" ? "bg-crimson-100 text-crimson-900 border-2 border-crimson-400" : "bg-crimson-600 text-white"} flex items-center gap-1">${escapeHqText(stNow.text)}</span>`;
-      } else if (scoreCurrent >= Number(STALL_RULES["屋台_停止点"])) {
+        statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-600 text-white flex items-center gap-1">${escapeHqText(stNow.text)}</span>`;
+      } else if (false) {
         iconBox.className = "w-11 h-11 rounded-[10px] bg-crimson-600 text-white flex items-center justify-center flex-shrink-0";
         statusContainer.innerHTML = `<span class="px-3 py-1 rounded-[10px] text-xs font-black bg-crimson-600 text-white flex items-center gap-1"><i data-lucide="octagon-alert" class="w-3.5 h-3.5"></i> 企画停止 (${STALL_RULES["屋台_停止点"]}点到達)</span>`;
       } else if (scoreCurrent >= Number(STALL_RULES["屋台_注意点"])) {
@@ -2577,7 +2569,7 @@
     };
   </script>
   <script>
-    // 屋台の状態: 本部の中止・停止 > 点数（連続2日合計）による停止（本部が再開するまで）> 注意
+    // 屋台の状態: 停止・中止は本部の操作だけで決まる（10/31 Director決定: 点数で自動停止しない）。点数は注意の目安だけ
     function stallStatus(stallId, periodKey) {
       const now = Date.now();
       const rows = reports.filter(r => isReportForStall(r, stallId));
@@ -2586,12 +2578,6 @@
       const stop = hqActiveAt(tl.stops, now)[0];
       if (stop) return { kind: "停止", text: `企画停止（${hqFormatUntil(stop.end, now)}）` };
       const score = getStallScore(stallId, periodKey);
-      if (score >= Number(STALL_RULES["屋台_停止点"])) {
-        const lastPoint = Math.max(0, ...rows.filter(r => !isHqAction(r) && isReportInPeriod(r, periodKey) && parsePoints(r.points) > 0)
-          .map(r => hqParseTime(r.createdAt) ?? 0));
-        if (tl.resumes.some(t => t > lastPoint)) return { kind: "再開済", text: `${score}点・本部が再開済み` };
-        return { kind: "自動停止", text: `企画停止（${score}点・再開待ち）` };
-      }
       if (score >= Number(STALL_RULES["屋台_注意点"])) return { kind: "注意", text: `注意（${score}点）` };
       return { kind: "通常", text: score > 0 ? `通常（${score}点）` : "通常" };
     }
@@ -2783,7 +2769,7 @@
       document.getElementById("hq-action-note").textContent = actionId === "HQ-STOP"
         ? hqAdapter().stopNote
         : actionId === "HQ-CANCEL" ? "企画中止として記録します。誤りなら記録の「取り消す」で戻せます。"
-        : "いまかかっている停止・中止（点数による停止も含む）を解除します。";
+        : "いまかかっている停止・中止を解除します。";
       const submit = document.getElementById("hq-action-submit");
       submit.className = `px-4 py-2 rounded-[10px] border-2 border-navy-950 text-sm font-black ${actionId === "HQ-RESUME" ? "bg-navy-950 text-white" : "bg-crimson-600 text-white"}`;
       submit.textContent = `${HQ_ACTION_LABEL[actionId]}を記録する`;
