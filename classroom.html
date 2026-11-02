@@ -70,13 +70,14 @@
       .rank-table td { padding: 0 !important; text-align: left; }
       .rank-table td[colspan] { grid-column: 1 / -1; text-align: center; }
       .rank-table td:nth-child(1) { grid-area: rank; align-self: start; }
-      .rank-table tr { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "rank place points" "rank org total" "rank status stops" "rank status detail"; }
+      .rank-table tr { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "rank place total" "rank org day" "rank status stops" "rank status detail"; }
       .rank-table td:nth-child(2) { grid-area: place; }
       .rank-table td:nth-child(2) > span { display: inline-block; margin: 0 0.4rem 0 0; }
       .rank-table td:nth-child(3) { grid-area: org; }
-      .rank-table td:nth-child(4) { grid-area: points; text-align: right; }
-      .rank-table td:nth-child(5) { grid-area: total; text-align: right; font-size: 12px !important; }
-      .rank-table td:nth-child(5)::before { content: "全日 "; font-weight: 700; color: #64748b; }
+      .rank-table td:nth-child(4) { grid-area: total; text-align: right; }
+      .rank-table td:nth-child(4)::before { content: "総合 "; font-size: 11px; font-weight: 700; color: #64748b; }
+      .rank-table td:nth-child(5) { grid-area: day; text-align: right; font-size: 11px !important; }
+      .rank-table td:nth-child(5)::before { content: "当日 "; font-weight: 700; color: #64748b; }
       .rank-table td:nth-child(6) { grid-area: stops; text-align: right; font-size: 11px; }
       .rank-table td:nth-child(6)::before { content: "停止 "; font-weight: 700; color: #64748b; }
       .rank-table td:nth-child(7) { grid-area: status; white-space: normal; }
@@ -462,8 +463,8 @@
                 <th class="py-3 px-3.5 text-center w-14">順位</th>
                 <th class="py-3 px-3.5">教室 / 校舎</th>
                 <th class="py-3 px-3.5">企画団体名</th>
-                <th class="py-3 px-3.5 text-center">当日合計点</th>
-                <th class="py-3 px-3.5 text-center">全日累計</th>
+                <th class="py-3 px-3.5 text-center">総合点<span class="block text-[10px] font-bold whitespace-nowrap">選択日まで</span></th>
+                <th class="py-3 px-3.5 text-center">当日の点</th>
                 <th class="py-3 px-3.5 text-center">停止回数</th>
                 <th class="py-3 px-3.5 text-center">状態</th>
                 <th class="py-3 px-3 text-center">詳細</th>
@@ -547,8 +548,9 @@
 
       <div class="py-3 bg-white px-4 rounded-[10px] my-3 border-2 border-navy-950 flex items-center justify-between">
         <div>
-          <span class="text-[11px] font-bold text-slate-400 block">選択日の合計点</span>
-          <span id="modal-detail-total-count" class="text-xl font-black text-navy-950">0 点</span>
+          <span id="modal-detail-total-label" class="text-[11px] font-bold text-slate-500 block">総合点</span>
+          <span id="modal-detail-total-count" class="text-3xl font-black text-navy-950 leading-tight block">0 点</span>
+          <span id="modal-detail-day-count" class="text-xs font-bold text-slate-500 block">--</span>
         </div>
         <div id="modal-detail-status-pill">
           <!-- Status tag inserted here -->
@@ -1941,20 +1943,20 @@
           status: room ? room.status[date] : "通常",
           note: room ? room.note[date] : "",
           alert: room ? room.alert[date] : "",
-          total: room ? room.total : 0,
+          total: room ? classroomTotalUntil(room, date) : 0,
           stopCount: room ? room.stops.filter(s => s.date <= date).length : 0 };
       });
       roomStats.sort((a, b) => CLASSROOM_STATUS_ORDER[b.status] - CLASSROOM_STATUS_ORDER[a.status]
         || (b.alert ? 1 : 0) - (a.alert ? 1 : 0)
-        || b.points - a.points || b.stopCount - a.stopCount || a.roomId.localeCompare(b.roomId));
+        || b.total - a.total || b.points - a.points || b.stopCount - a.stopCount || a.roomId.localeCompare(b.roomId));
       const tbody = document.getElementById("org-ranking-tbody");
       tbody.innerHTML = roomStats.map((room, index) => `
         <tr data-room-id="${escapeHTML(room.roomId)}" class="border-b-2 border-navy-950 cursor-pointer ${room.status === '通常' && !room.alert ? 'bg-white hover:bg-white' : 'bg-crimson-50 hover:bg-crimson-100'}">
           <td class="py-3 px-3.5 text-center font-black">${index + 1}</td>
           <td class="py-3 px-3.5"><span class="gold-plate-badge px-2 py-0.5 rounded-[10px] font-black whitespace-nowrap">${escapeHTML(room.roomName)}</span><span class="block text-slate-500 mt-1">${escapeHTML(room.buildingName)}</span></td>
           <td class="py-3 px-3.5 font-black text-navy-950">${escapeHTML(room.orgName)}</td>
-          <td class="py-3 px-3.5 text-center font-black text-base">${room.points} <span class="text-xs">点</span></td>
-          <td class="py-3 px-3.5 text-center font-black text-base">${room.total} <span class="text-xs">点</span></td>
+          <td class="py-3 px-3.5 text-center font-black text-2xl leading-none text-navy-950">${room.total}<span class="text-xs ml-0.5">点</span></td>
+          <td class="py-3 px-3.5 text-center font-bold text-xs text-slate-500">${room.points} 点</td>
           <td class="py-3 px-3.5 text-center font-black">${room.stopCount} 回</td>
           <td class="py-3 px-3.5 text-center whitespace-nowrap">${classroomStatusBadge(room.status)}${room.note ? `<span class="block text-[10px] font-bold text-crimson-700 mt-1">${escapeHTML(room.note)}</span>` : ""}${room.alert ? `<span class="block mt-1">${hqStateBadge(room.alert, true)}</span>` : ""}</td>
           <td class="py-3 px-3 text-center"><span class="text-navy-950 font-bold">詳細</span></td>
@@ -1962,6 +1964,11 @@
       `).join("");
       tbody.querySelectorAll("tr").forEach(row => { row.onclick = () => openOrgDetailModal(row.dataset.roomId); });
       lucide.createIcons();
+    }
+
+    // 教室は総合点（初日から選択日までの合計）で判断する（11/2 Director）。選択日が今日なら「現在までの総合点」
+    function classroomTotalUntil(room, date) {
+      return classroomDates(CLASSROOM_RULES).filter(d => d <= date).reduce((sum, d) => sum + (room.dayTotal[d] || 0), 0);
     }
 
     function openOrgDetailModal(roomId) {
@@ -1977,7 +1984,9 @@
       document.getElementById("modal-detail-room-badge").innerText = first.roomName;
       document.getElementById("modal-detail-building").innerText = first.buildingName || (building ? building.name : "");
       document.getElementById("modal-detail-org-name").innerText = first.orgName;
-      document.getElementById("modal-detail-total-count").innerText = `${date.replace("-", "/")}：${room ? room.dayTotal[date] : 0} 点（全日累計 ${room ? room.total : 0} 点）`;
+      document.getElementById("modal-detail-total-label").innerText = `総合点（${date.replace("-", "/")}まで）`;
+      document.getElementById("modal-detail-total-count").innerText = `${room ? classroomTotalUntil(room, date) : 0} 点`;
+      document.getElementById("modal-detail-day-count").innerText = `${date.replace("-", "/")}の点: ${room ? room.dayTotal[date] : 0} 点`;
       document.getElementById("modal-detail-status-pill").innerHTML = classroomStatusBadge(room ? room.status[date] : "通常")
         + (room && room.note[date] ? `<span class="block mt-1 text-xs font-black text-crimson-700">${escapeHTML(room.note[date])}</span>` : "")
         + (room && room.alert[date] ? `<span class="block mt-1">${hqStateBadge(room.alert[date], true)}</span>` : "")
